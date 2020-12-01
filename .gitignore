@@ -1,0 +1,4 @@
+/.direnv/
+/.ionide/
+/**/bin/
+/**/obj/

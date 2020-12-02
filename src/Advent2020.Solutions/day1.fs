@@ -55,8 +55,7 @@ let rec findSolution target numbers holdZ =
 
 let run (input: seq<string>, part: string) =
     let holdZ = part <> "part2"
-    let numbers: option<list<int>> = input |> Seq.map Utilities.tryParse |> Utilities.liftOption
-    match numbers with
+    match input |> Seq.map Utilities.tryParse |> Utilities.liftOption with
     | None -> printfn "Error: input file not in expected format (a list of integers)."
     | Some numbers ->
         let numbers = numbers |> List.sort |> Array.ofList

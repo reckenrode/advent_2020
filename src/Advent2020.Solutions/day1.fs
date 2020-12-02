@@ -29,6 +29,7 @@ let rec climb target pos currentDistance data =
             let possibilities =
                 enumerateNeighbors pos
                 |> Seq.filter (List.forall isInRange)
+                |> Seq.filter (Utilities.allUnique)
                 |> Seq.map (fun pos -> (pos, distance target pos data))
                 |> Seq.filter (fun (_, d) -> d < currentDistance)
                 |> Array.ofSeq
@@ -40,10 +41,18 @@ let rec climb target pos currentDistance data =
                 return! data |> climb target newPos newDistance
     }
 
-let rec findSolution target numbers holdZ =
+let rec uniqueRandomCreate size gen =
+    random {
+        let! result = List.randomCreate size gen
+        if result |> Utilities.allUnique
+        then return result
+        else return! uniqueRandomCreate size gen
+    }
+
+let rec findSolution target numbers size =
     random {
         let maxPos = (numbers |> Array.length) - 1
-        let! start = List.randomCreate size (Statistics.uniformDiscrete (0, maxPos))
+        let! start = uniqueRandomCreate size (Statistics.uniformDiscrete (0, maxPos))
         match! numbers |> climb target start (distance target start numbers) with
         | Some result -> return result
         | None -> return! findSolution target numbers size

@@ -12,10 +12,10 @@ module Inventory =
         && (m.GetParameters () |> Array.map (fun x -> x.ParameterType)) = [| typeof<seq<string>>; typeof<string> |]
         && m.ReturnType = typeof<System.Void>
 
-    let getName (p: PropertyInfo) =
+    let private getName (p: PropertyInfo) =
         p.GetValue null :?> string
 
-    let makeRunFunc (m: MethodInfo) =
+    let private makeRunFunc (m: MethodInfo) =
         fun (x: seq<string>, p: string) -> m.Invoke (null, [| x; p |]) :?> unit
 
     let private solutionModule (t: System.Type) =

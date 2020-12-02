@@ -15,3 +15,9 @@ let liftResult f x =
     |   ex -> Error ex
 
 let readFile: string -> Result<seq<string>, exn> = liftResult File.ReadLines
+
+let inline tryParse (str: string) : option<'a>
+        when ^a: (static member TryParse: string * ^a byref -> bool) =
+    let mutable result = Unchecked.defaultof<'a>
+    let didParse = (^a: (static member TryParse: string * ^a byref -> bool) (str, &result))
+    if didParse then Some result else None

@@ -44,7 +44,7 @@ let rec findSolution target numbers =
         | None -> return! findSolution target numbers
     }
 
-let run (input: seq<string>) =
+let run (input: seq<string>, part: string) =
     let numbers: option<list<int>> = input |> Seq.map Utilities.tryParse |> Utilities.liftOption
     match numbers with
     | None -> printfn "Error: input file not in expected format (a list of integers)."

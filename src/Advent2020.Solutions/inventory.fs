@@ -9,14 +9,14 @@ module Inventory =
 
     let private isRunMethod (m: MethodInfo) =
         (not <| isNull m)
-        && (m.GetParameters () |> Array.map (fun x -> x.ParameterType)) = [| typeof<seq<string>> |]
+        && (m.GetParameters () |> Array.map (fun x -> x.ParameterType)) = [| typeof<seq<string>>; typeof<string> |]
         && m.ReturnType = typeof<System.Void>
 
     let getName (p: PropertyInfo) =
         p.GetValue null :?> string
 
     let makeRunFunc (m: MethodInfo) =
-        fun (x: seq<string>) -> m.Invoke (null, [| x |]) :?> unit
+        fun (x: seq<string>, p: string) -> m.Invoke (null, [| x; p |]) :?> unit
 
     let private solutionModule (t: System.Type) =
         let bindingFlags = BindingFlags.Public ||| BindingFlags.Static
@@ -25,7 +25,7 @@ module Inventory =
             Some (getName name, makeRunFunc run)
         | _ -> None
 
-    let solutions: Map<string, seq<string> -> unit> =
+    let solutions: Map<string, seq<string> * string -> unit> =
         let assembly = Assembly.GetExecutingAssembly ()
         assembly.GetTypes ()
         |> Array.choose solutionModule

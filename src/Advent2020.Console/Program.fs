@@ -14,7 +14,7 @@ let explainError (ex: exn) =
     -1
 
 let runSolution solution input =
-    printfn $"{solution input}"
+    solution input
     0
 
 [<EntryPoint>]

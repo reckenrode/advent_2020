@@ -5,7 +5,7 @@ open Advent2020.Solutions
 let usage () =
     printfn "usage: advent_2020 <day> <input>"
     printfn "\nDays:"
-    for day in Inventory.solutions |> Map.toSeq |> Seq.map fst do
+    for day in Inventory.solutions |> Map.toSeq |> Seq.map fst |> Seq.sort do
         printfn $"   {day}"
     -1
 

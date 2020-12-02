@@ -27,3 +27,7 @@ let inline tryParse (str: string) : option<'a>
     let mutable result = Unchecked.defaultof<'a>
     let didParse = (^a: (static member TryParse: string * ^a byref -> bool) (str, &result))
     if didParse then Some result else None
+
+let allUnique = function
+| [] -> true
+| x::xs-> xs |> List.forall (fun y -> x <> y)

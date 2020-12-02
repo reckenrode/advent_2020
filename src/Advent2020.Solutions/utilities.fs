@@ -14,6 +14,12 @@ let liftResult f x =
     with
     |   ex -> Error ex
 
+let rec pairs = function
+| [] -> []
+| [x] -> [x]
+| x::[y] -> List.allPairs x y |> List.map (fun (x, y) -> [x; y])
+| x::xs -> pairs xs  |> List.allPairs x |> List.map List.Cons
+
 let readFile: string -> Result<seq<string>, exn> = liftResult File.ReadLines
 
 let inline tryParse (str: string) : option<'a>

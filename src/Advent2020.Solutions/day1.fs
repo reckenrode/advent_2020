@@ -6,30 +6,29 @@ let name = "day1"
 
 let targetNumber = 2020
 
-let distance target (x, y, z) (data: array<int>) =
-    let zValue = data |> Array.tryItem z |> Option.orElse (Some 0) |> Option.get
-    target - (data.[x] + data.[y] + zValue) |> System.Math.Abs
+let distance target (ps: list<int>) (data: array<int>) =
+    let sum = ps |> List.fold (fun acc x -> acc + data.[x]) 0
+    (target - sum) |> System.Math.Abs
 
-let enumerateNeighbors (pos&(x, y, z)) =
-    Seq.allPairs [x-1; x; x+1] [y-1; y; y+1]
-    |> Seq.allPairs [z-1; z; z+1]
-    |> Seq.map (fun (x, (y, z)) -> (x, y, z))
-    |> Seq.filter (fun p -> p <> pos)
+let enumerateNeighbors ps =
+    ps
+    |> List.map (fun idx -> [idx - 1; idx; idx + 1])
+    |> Utilities.pairs
+    |> Seq.filter (fun p -> p <> ps)
 
 let isInRange bot top x =
     x >= bot && x < top
 
-let rec climb target pos currentDistance holdZ data =
+let rec climb target pos currentDistance data =
     random {
         if currentDistance = 0
-        then return Some pos
+        then return Some (pos |> List.map (fun x -> data |> Array.item x))
         else
             let maxPos = data |> Array.length
             let isInRange = isInRange 0 maxPos
             let possibilities =
                 enumerateNeighbors pos
-                |> Seq.filter (fun (x, y, z) ->
-                    isInRange x && isInRange y && if holdZ then z = -1 else isInRange z)
+                |> Seq.filter (List.forall isInRange)
                 |> Seq.map (fun pos -> (pos, distance target pos data))
                 |> Seq.filter (fun (_, d) -> d < currentDistance)
                 |> Array.ofSeq
@@ -38,33 +37,25 @@ let rec climb target pos currentDistance holdZ data =
             else
                 let! candidate = possibilities |> Array.sampleOne
                 let newPos, newDistance = candidate
-                return! data |> climb target newPos newDistance holdZ
+                return! data |> climb target newPos newDistance
     }
 
 let rec findSolution target numbers holdZ =
     random {
         let maxPos = (numbers |> Array.length) - 1
-        let! startX = Statistics.uniformDiscrete (0, maxPos)
-        let! startY = Statistics.uniformDiscrete (0, maxPos)
-        let! startZ = if holdZ then random { return -1 } else Statistics.uniformDiscrete (0, maxPos)
-        let start = (startX, startY, startZ)
-        match! numbers |> climb target start (distance target start numbers) holdZ with
+        let! start = List.randomCreate size (Statistics.uniformDiscrete (0, maxPos))
+        match! numbers |> climb target start (distance target start numbers) with
         | Some result -> return result
-        | None -> return! findSolution target numbers holdZ
+        | None -> return! findSolution target numbers size
     }
 
 let run (input: seq<string>, part: string) =
-    let holdZ = part <> "part2"
     match input |> Seq.map Utilities.tryParse |> Utilities.liftOption with
     | None -> printfn "Error: input file not in expected format (a list of integers)."
     | Some numbers ->
+        let size = if part = "part2" then 3 else 2
         let numbers = numbers |> List.sort |> Array.ofList
         let rng = Utility.createRandomState ()
-        let (idx1, idx2, idx3) = rng |> Random.get (findSolution targetNumber numbers holdZ)
-        let n1 = numbers.[idx1]
-        let n2 = numbers.[idx2]
-        if idx3 = -1
-        then printfn $"{n1} × {n2} = {n1 * n2}"
-        else
-            let n3 = numbers.[idx3]
-            printfn $"{n1} × {n2} × {n3} = {n1 * n2 * n3}"
+        let result = rng |> Random.get (findSolution targetNumber numbers size)
+        let exp = System.String.Join ("×", result)
+        printfn $"{exp} = {result |> List.fold (*) 1}"

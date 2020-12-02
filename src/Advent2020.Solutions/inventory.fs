@@ -10,7 +10,7 @@ module Inventory =
     let private isRunMethod (m: MethodInfo) =
         (not <| isNull m)
         && (m.GetParameters () |> Array.map (fun x -> x.ParameterType)) = [| typeof<seq<string>> |]
-        && m.ReturnType = typeof<unit>
+        && m.ReturnType = typeof<System.Void>
 
     let getName (p: PropertyInfo) =
         p.GetValue null :?> string

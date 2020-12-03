@@ -129,3 +129,31 @@ module ``Password Validation`` =
         let result = parse input
         let isValid = result |> Option.map PasswordInfo.hasValidPassword
         isValid |> should equal (Some false)
+
+    [<Fact>]
+    let ``new policy flags passwords with the first index as valid`` () =
+        let input = "1-10 a: abacadaeafagaaaa"
+        let result = parseWithPolicy NewPolicy input
+        let isValid = result |> Option.map PasswordInfo.hasValidPassword
+        isValid |> should equal (Some true)
+
+    [<Fact>]
+    let ``new policy flags passwords with the second index as valid`` () =
+        let input = "1-10 f: abacadaeafagaaaa"
+        let result = parseWithPolicy NewPolicy input
+        let isValid = result |> Option.map PasswordInfo.hasValidPassword
+        isValid |> should equal (Some true)
+
+    [<Fact>]
+    let ``new policy flags passwords with the both indices as invalid`` () =
+        let input = "1-3 a: abacadaeafagaaaa"
+        let result = parseWithPolicy NewPolicy input
+        let isValid = result |> Option.map PasswordInfo.hasValidPassword
+        isValid |> should equal (Some false)
+
+    [<Fact>]
+    let ``new policy flags passwords with the neither index as invalid`` () =
+        let input = "1-10 z: abacadaeafagaaaa"
+        let result = parseWithPolicy NewPolicy input
+        let isValid = result |> Option.map PasswordInfo.hasValidPassword
+        isValid |> should equal (Some false)

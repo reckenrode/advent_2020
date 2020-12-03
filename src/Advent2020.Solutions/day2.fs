@@ -4,11 +4,19 @@ open FParsec
 
 type Policy =
     | OldPolicy of min: uint * max: uint * ch: char
+    | NewPolicy of fst: uint * snd: uint * ch: char with
     member self.IsValid password =
         match self with
         | OldPolicy (min, max, ch) ->
             let numOccurences = password |> Seq.filter ((=) ch) |> Seq.length |> uint
             numOccurences >= min && numOccurences <= max
+        | NewPolicy (fst, snd, ch) ->
+            let arr = password |> Array.ofSeq
+            let firstCh = arr |> Array.tryItem (int fst - 1)
+            let secondCh = arr |> Array.tryItem (int snd - 1)
+            match firstCh, secondCh with
+            | Some c, Some x | Some x, Some c when c = ch && x <> c -> true
+            | _ -> false
 
 module Policy =
     let isValid password (policy: Policy) = policy.IsValid password

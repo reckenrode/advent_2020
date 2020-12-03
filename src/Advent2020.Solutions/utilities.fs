@@ -1,6 +1,22 @@
 module Advent2020.Solutions.Utilities
 
+open FSharpx.Collections
+
 open System.IO
+
+let cycle xs =
+    let originalXs = xs
+    let rec cycle' xs =
+        seq {
+            match xs |> Seq.unCons with
+            | Some (head, tail) ->
+                yield head
+                if tail |> Seq.isEmpty
+                then yield! cycle' originalXs
+                else yield! cycle' tail
+            | None -> failwith "empty sequences are not supported"
+        }
+    cycle' xs
 
 let liftOption xs =
     Seq.foldBack (fun x xs ->

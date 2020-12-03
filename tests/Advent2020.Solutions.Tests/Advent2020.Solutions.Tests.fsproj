@@ -9,6 +9,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="FsCheck.Xunit" Version="2.14.*" />
     <PackageReference Include="FsUnit" Version="4.0.*" />
     <PackageReference Include="FsUnit.Xunit" Version="4.0.*" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.*" />

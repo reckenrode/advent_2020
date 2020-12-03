@@ -28,6 +28,6 @@ let inline tryParse (str: string) : option<'a>
     let didParse = (^a: (static member TryParse: string * ^a byref -> bool) (str, &result))
     if didParse then Some result else None
 
-let allUnique = function
+let rec allUnique = function
 | [] -> true
-| x::xs-> xs |> List.forall (fun y -> x <> y)
+| x::xs-> xs |> List.forall (fun y -> x <> y) && allUnique xs

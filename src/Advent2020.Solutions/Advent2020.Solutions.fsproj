@@ -6,6 +6,7 @@
     <Compile Include="inventory.fs" />
     <Compile Include="utilities.fs" />
     <Compile Include="day1.fs" />
+    <Compile Include="day2.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FParsec" Version="1.1.*" />

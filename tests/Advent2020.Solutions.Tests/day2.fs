@@ -15,7 +15,7 @@ module ``Password Parser`` =
         let input = $"{digit}-2 a: abcd"
         let result = parse input
         let minChars = result |> Option.map (fun o ->
-            match o |> Password.policy with Policy (minChars, _, _) -> minChars)
+            match o |> PasswordInfo.policy with Policy (minChars, _, _) -> minChars)
         minChars |> should equal (Some digit)
 
     [<Property>]
@@ -23,7 +23,7 @@ module ``Password Parser`` =
         let input = $"2-{digit} b: efgh"
         let result = parse input
         let maxChars = result |> Option.map (fun o ->
-            match o |> Password.policy with Policy (_, maxChars, _) -> maxChars)
+            match o |> PasswordInfo.policy with Policy (_, maxChars, _) -> maxChars)
         maxChars |> should equal (Some digit)
 
     [<Property>]
@@ -31,7 +31,7 @@ module ``Password Parser`` =
         Prop.forAll spaces <| fun sp ->
             let input = $"0-3{sp}b: zxcv"
             let result = parse input
-            let policy = result |> Option.map Password.policy
+            let policy = result |> Option.map PasswordInfo.policy
             policy |> should equal (Some (Policy (0u, 3u, 'b')))
 
     [<Fact>]
@@ -46,7 +46,7 @@ module ``Password Parser`` =
             let input = $"3-4 {ch}: ijkl"
             let result = parse input
             let mandatoryCharacter = result |> Option.map (fun o ->
-                match o |> Password.policy with Policy (_, _, ch) -> ch)
+                match o |> PasswordInfo.policy with Policy (_, _, ch) -> ch)
             mandatoryCharacter |> should equal (Some ch)
 
     [<Property>]
@@ -68,7 +68,7 @@ module ``Password Parser`` =
         Prop.forAll policyEnding <| fun ch ->
             let input = $"9-10 d{ch} mnop"
             let result = parse input
-            let policy = result |> Option.map Password.policy
+            let policy = result |> Option.map PasswordInfo.policy
             if ch = ':'
             then policy |> should equal (Some (Policy (min=9u, max=10u, ch='d')))
             else policy |> should equal None
@@ -78,7 +78,7 @@ module ``Password Parser`` =
         Prop.forAll spaces <| fun sp ->
             let input = $"11-12 e:{sp}qrst"
             let result = parse input
-            let password = result |> Option.map Password.password
+            let password = result |> Option.map PasswordInfo.password
             password |> should equal (Some "qrst")
 
     [<Fact>]
@@ -92,5 +92,13 @@ module ``Password Parser`` =
         Prop.forAll password <| fun pw ->
             let input = $"13-14 f: {pw}"
             let result = parse input
-            let password = result |> Option.map Password.password
+            let password = result |> Option.map PasswordInfo.password
             password |> should equal (Some pw)
+
+// module ``Password Validation`` =
+//     [<Fact>]
+//     let ``flags passwords with at least the required number of characters as valid`` () =
+//         let input = "1-10 a: abcdefg"
+//         let result = parse input
+//         let isValid = result |> Option.map (fun pw -> pw |> PasswordInfo.policy |> Policy.isValid)
+//         isValid |> should be True

@@ -34,3 +34,12 @@ let parse input =
     match run parser input with
     | Success (password, _, _) -> Some password
     | Failure _ -> None
+
+let name = "day2"
+
+let run (input: seq<string>, arg: string) =
+    match input |> Seq.map parse |> Utilities.liftOption with
+    | None -> printfn "Error: input file contains invalid password entries"
+    | Some passwords ->
+        let valid = passwords |> Seq.filter PasswordInfo.hasValidPassword |> Seq.length
+        printfn $"# valid passwords: {valid}"

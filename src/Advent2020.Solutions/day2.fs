@@ -50,7 +50,8 @@ let parse = parseWithPolicy OldPolicy
 let name = "day2"
 
 let run (input: seq<string>, arg: string) =
-    match input |> Seq.map parse |> Utilities.liftOption with
+    let policy = if arg = "new" then NewPolicy else OldPolicy
+    match input |> Seq.map (parseWithPolicy policy) |> Utilities.liftOption with
     | None -> printfn "Error: input file contains invalid password entries"
     | Some passwords ->
         let valid = passwords |> Seq.filter PasswordInfo.hasValidPassword |> Seq.length

@@ -44,6 +44,15 @@ let inline tryParse (str: string) : option<'a>
     let didParse = (^a: (static member TryParse: string * ^a byref -> bool) (str, &result))
     if didParse then Some result else None
 
+let rec trySkip n xs =
+    if xs |> Seq.isEmpty
+    then Seq.empty
+    else
+        let t = xs |> Seq.tail
+        if n = 1
+        then t
+        else trySkip (n - 1) t
+
 let rec allUnique = function
 | [] -> true
 | x::xs-> xs |> List.forall (fun y -> x <> y) && allUnique xs

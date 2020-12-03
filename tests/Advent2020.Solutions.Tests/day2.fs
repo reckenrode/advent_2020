@@ -15,7 +15,9 @@ module ``Password Parser`` =
         let input = $"{digit}-2 a: abcd"
         let result = parse input
         let minChars = result |> Option.map (fun o ->
-            match o |> PasswordInfo.policy with Policy (minChars, _, _) -> minChars)
+            match o |> PasswordInfo.policy with
+            | OldPolicy (minChars, _, _) -> minChars
+            | _ -> failwith "n/a")
         minChars |> should equal (Some digit)
 
     [<Property>]
@@ -23,7 +25,9 @@ module ``Password Parser`` =
         let input = $"2-{digit} b: efgh"
         let result = parse input
         let maxChars = result |> Option.map (fun o ->
-            match o |> PasswordInfo.policy with Policy (_, maxChars, _) -> maxChars)
+            match o |> PasswordInfo.policy with
+            | OldPolicy (_, maxChars, _) -> maxChars
+            | _ -> failwith "n/a")
         maxChars |> should equal (Some digit)
 
     [<Property>]
@@ -32,7 +36,7 @@ module ``Password Parser`` =
             let input = $"0-3{sp}b: zxcv"
             let result = parse input
             let policy = result |> Option.map PasswordInfo.policy
-            policy |> should equal (Some (Policy (0u, 3u, 'b')))
+            policy |> should equal (Some (OldPolicy (0u, 3u, 'b')))
 
     [<Fact>]
     let ``the policy parser rejects a lack of space between the last digit and character`` () =
@@ -46,7 +50,9 @@ module ``Password Parser`` =
             let input = $"3-4 {ch}: ijkl"
             let result = parse input
             let mandatoryCharacter = result |> Option.map (fun o ->
-                match o |> PasswordInfo.policy with Policy (_, _, ch) -> ch)
+                match o |> PasswordInfo.policy with
+                | OldPolicy (_, _, ch) -> ch
+                | _ -> failwith "n/a")
             mandatoryCharacter |> should equal (Some ch)
 
     [<Property>]
@@ -70,7 +76,7 @@ module ``Password Parser`` =
             let result = parse input
             let policy = result |> Option.map PasswordInfo.policy
             if ch = ':'
-            then policy |> should equal (Some (Policy (min=9u, max=10u, ch='d')))
+            then policy |> should equal (Some (OldPolicy (min=9u, max=10u, ch='d')))
             else policy |> should equal None
 
     [<Property>]

@@ -2,10 +2,11 @@ module Advent2020.Solutions.Day2
 
 open FParsec
 
-type Policy =  Policy of min: uint * max: uint * ch: char with
+type Policy =
+    | OldPolicy of min: uint * max: uint * ch: char
     member self.IsValid password =
         match self with
-        | Policy (min, max, ch) ->
+        | OldPolicy (min, max, ch) ->
             let numOccurences = password |> Seq.filter ((=) ch) |> Seq.length |> uint
             numOccurences >= min && numOccurences <= max
 
@@ -22,18 +23,21 @@ module PasswordInfo =
         let passwd = pinfo |> password
         policy |> Policy.isValid passwd
 
-let private policyParser =
-    tuple3 (puint32 .>> pchar '-') (puint32 .>> spaces1) (asciiLower .>> pchar ':') |>> Policy
+let private policyParser policy =
+    tuple3 (puint32 .>> pchar '-') (puint32 .>> spaces1) (asciiLower .>> pchar ':') |>> policy
 
 let private passwordParser =
     spaces1 >>. (many1 (satisfy (not << System.Char.IsWhiteSpace))) |>> System.String.Concat
 
-let private parser = tuple2 policyParser passwordParser |>> PasswordInfo
+let private parser policy =
+    tuple2 (policyParser policy) passwordParser |>> PasswordInfo
 
-let parse input =
-    match run parser input with
+let parseWithPolicy policy input =
+    match run (parser policy) input with
     | Success (password, _, _) -> Some password
     | Failure _ -> None
+
+let parse = parseWithPolicy OldPolicy
 
 let name = "day2"
 

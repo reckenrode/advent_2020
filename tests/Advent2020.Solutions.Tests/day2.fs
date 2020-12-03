@@ -95,10 +95,31 @@ module ``Password Parser`` =
             let password = result |> Option.map PasswordInfo.password
             password |> should equal (Some pw)
 
-// module ``Password Validation`` =
-//     [<Fact>]
-//     let ``flags passwords with at least the required number of characters as valid`` () =
-//         let input = "1-10 a: abcdefg"
-//         let result = parse input
-//         let isValid = result |> Option.map (fun pw -> pw |> PasswordInfo.policy |> Policy.isValid)
-//         isValid |> should be True
+module ``Password Validation`` =
+    [<Fact>]
+    let ``flags passwords with at least the required number of characters as valid`` () =
+        let input = "1-10 a: abcdefg"
+        let result = parse input
+        let isValid = result |> Option.map PasswordInfo.hasValidPassword
+        isValid |> should equal (Some true)
+
+    [<Fact>]
+    let ``flags passwords with no more than the required number of characters as valid`` () =
+        let input = "1-10 a: abacadaeafagaaaa"
+        let result = parse input
+        let isValid = result |> Option.map PasswordInfo.hasValidPassword
+        isValid |> should equal (Some true)
+
+    [<Fact>]
+    let ``flags passwords with not enough required characters as valid`` () =
+        let input = "1-10 q: abacadaeafagaaaa"
+        let result = parse input
+        let isValid = result |> Option.map PasswordInfo.hasValidPassword
+        isValid |> should equal (Some false)
+
+    [<Fact>]
+    let ``flags passwords with too many required characters as valid`` () =
+        let input = "1-5 a: abacadaeafagaaaa"
+        let result = parse input
+        let isValid = result |> Option.map PasswordInfo.hasValidPassword
+        isValid |> should equal (Some false)

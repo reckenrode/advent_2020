@@ -36,6 +36,8 @@ let rec pairs = function
 | x::[y] -> List.allPairs x y |> List.map (fun (x, y) -> [x; y])
 | x::xs -> pairs xs  |> List.allPairs x |> List.map List.Cons
 
+let read: string -> Result<string, exn> = liftResult File.ReadAllText
+
 let readFile: string -> Result<seq<string>, exn> = liftResult File.ReadLines
 
 let inline tryParse (str: string) : option<'a>

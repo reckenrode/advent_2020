@@ -12,6 +12,11 @@ module Inventory =
         && (m.GetParameters () |> Array.map (fun x -> x.ParameterType)) = [| typeof<seq<string>>; typeof<string> |]
         && m.ReturnType = typeof<System.Void>
 
+    let private isRunMethodRaw (m: MethodInfo) =
+        (not <| isNull m)
+        && (m.GetParameters () |> Array.map (fun x -> x.ParameterType)) = [| typeof<string>; typeof<string> |]
+        && m.ReturnType = typeof<System.Void>
+
     let private getName (p: PropertyInfo) =
         p.GetValue null :?> string
 

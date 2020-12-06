@@ -25,6 +25,11 @@ module Inventory =
            Utilities.readFile path
            |> Result.map (fun lines -> m.Invoke (null, [| lines; arg |]) :?> unit)
 
+    let private makeRunFuncRaw (m: MethodInfo) =
+        fun (path: string, arg: string) ->
+           Utilities.read path
+           |> Result.map (fun input -> m.Invoke (null, [| input; arg |]) :?> unit)
+
     let private solutionModule (t: System.Type) =
         let bindingFlags = BindingFlags.Public ||| BindingFlags.Static
         match (t.GetProperty "name", t.GetMethod ("run", bindingFlags)) with

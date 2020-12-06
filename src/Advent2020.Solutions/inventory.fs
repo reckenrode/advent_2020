@@ -35,6 +35,8 @@ module Inventory =
         match (t.GetProperty "name", t.GetMethod ("run", bindingFlags)) with
         | (name, run) when isSolutionName name && isRunMethod run ->
             Some (getName name, makeRunFunc run)
+        | (name, run) when isSolutionName name && isRunMethodRaw run ->
+            Some (getName name, makeRunFuncRaw run)
         | _ -> None
 
     let solutions: Map<string, string * string -> Result<unit, exn>> =

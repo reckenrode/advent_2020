@@ -16,7 +16,9 @@ module Inventory =
         p.GetValue null :?> string
 
     let private makeRunFunc (m: MethodInfo) =
-        fun (x: seq<string>, p: string) -> m.Invoke (null, [| x; p |]) :?> unit
+        fun (path: string, arg: string) ->
+           Utilities.readFile path
+           |> Result.map (fun lines -> m.Invoke (null, [| lines; arg |]) :?> unit)
 
     let private solutionModule (t: System.Type) =
         let bindingFlags = BindingFlags.Public ||| BindingFlags.Static
@@ -25,7 +27,7 @@ module Inventory =
             Some (getName name, makeRunFunc run)
         | _ -> None
 
-    let solutions: Map<string, seq<string> * string -> unit> =
+    let solutions: Map<string, string * string -> Result<unit, exn>> =
         let assembly = Assembly.GetExecutingAssembly ()
         assembly.GetTypes ()
         |> Array.choose solutionModule

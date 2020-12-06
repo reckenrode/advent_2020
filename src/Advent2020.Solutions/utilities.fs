@@ -56,3 +56,8 @@ let rec trySkip n xs =
 let rec allUnique = function
 | [] -> true
 | x::xs-> xs |> List.forall (fun y -> x <> y) && allUnique xs
+
+module Result =
+    let defaultWith f = function
+    | Ok x -> x
+    | Error ex -> (f ex)

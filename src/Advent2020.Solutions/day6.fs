@@ -39,6 +39,7 @@ let run (input: string, arg: string) =
     match input |> run groupsParser with
     | Failure (ex, _, _) -> printfn $"{ex}"
     | Success (Some groups, _, _) ->
-        let n = groups |> List.map Group.countYesAnswers |> List.sum
-        printfn $"Total yes answers to unique questions summed across groups: {n}"
+        let countf = if arg = "every" then Group.countCommonYesAnswers else Group.countYesAnswers
+        let n = groups |> List.map countf |> List.sum
+        printfn $"Yes answers for {arg}one: {n}"
     | Success (None, _, _) -> printfn "Some of the groups contained invalid data."

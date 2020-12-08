@@ -25,5 +25,17 @@ let parsePass (pass: string) =
     seatId (parseRow rowPart) (parseColumn colPart)
 
 let run (input: seq<string>, arg: string) =
-    let maxPass = input |> Seq.map parsePass |> Seq.max
-    printfn $"{maxPass}"
+    let passes = input |> Seq.map parsePass
+    if arg = "max"
+    then
+        let maxPass = passes |> Seq.max
+        printfn $"Max: {maxPass}"
+    else
+        let gaps =
+            passes
+            |> Seq.sort
+            |> Seq.pairwise
+            |> Seq.filter (fun (lhs, rhs) -> lhs <> rhs - 1)
+            |> Seq.head
+        let mySeat = (fst gaps) + 1
+        printfn $"My seat: {mySeat}"

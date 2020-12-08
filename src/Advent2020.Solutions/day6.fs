@@ -27,6 +27,7 @@ module Responses =
 
 module Group =
     let countYesAnswers: Group -> int = Set.unionMany >> Set.count
+    let countCommonYesAnswers: Group -> int = Set.intersectMany >> Set.count
 
     let parser<'ex> : Parser<option<Group>, 'ex> =
         sepEndBy1 Responses.parser newline |>> sequence

@@ -63,3 +63,10 @@ module Result =
     let defaultWith f = function
     | Ok x -> x
     | Error ex -> (f ex)
+
+module Span =
+    let fold f state (span: System.ReadOnlySpan<'a>) =
+        let mutable acc = state
+        for x in span do
+            acc <- f acc x
+        acc

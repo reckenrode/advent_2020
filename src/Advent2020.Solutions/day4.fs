@@ -18,7 +18,7 @@ let passportList =
 
 let allPassportFields = [ "byr"; "iyr"; "eyr"; "hgt"; "hcl"; "ecl"; "pid" ] |> List.sort
 
-let isValidPassport =
+let isValidPassport p =
     let fields = p |> Map.toSeq |> Seq.map fst |> Seq.filter ((<>) "cid") |> Seq.sort |> Seq.toList
     fields = allPassportFields
 

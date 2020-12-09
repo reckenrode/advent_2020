@@ -13,18 +13,17 @@ module XmasCracker =
     let findNonSumming window data =
         let rest = data |> List.skip window
         let sums = data |> calculateSums window
-        let rec findNonSumming' window data sums =
-            match data |> Seq.unCons with
-            | Some (x, xs) ->
+        let rec findNonSumming' window sums = function
+            | x::xs ->
                 let windowSums =
                     sums
                     |> LazyList.take window
                     |> LazyList.tryFind (LazyList.tryFind ((=) x) >> Option.isSome)
                 if windowSums |> Option.isNone
                 then Some x
-                else findNonSumming' window xs (sums |> LazyList.tail)
-            | _ -> None
-        findNonSumming' window rest sums
+                else xs |> findNonSumming' window (sums |> LazyList.tail)
+            | [] -> None
+        rest |> findNonSumming' window sums
 
 let name = "day9"
 

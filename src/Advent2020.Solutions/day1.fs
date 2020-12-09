@@ -19,10 +19,10 @@ let enumerateNeighbors ps =
 let isInRange bot top x =
     x >= bot && x < top
 
-let rec climb target pos currentDistance data =
+let rec climb dist target pos currentDistance data =
     random {
         if currentDistance = 0
-        then return Some (pos |> List.map (fun x -> data |> Array.item x))
+        then return Some pos
         else
             let maxPos = data |> Array.length
             let isInRange = isInRange 0 maxPos
@@ -30,7 +30,7 @@ let rec climb target pos currentDistance data =
                 enumerateNeighbors pos
                 |> Seq.filter (List.forall isInRange)
                 |> Seq.filter (Utilities.allUnique)
-                |> Seq.map (fun pos -> (pos, distance target pos data))
+                |> Seq.map (fun pos -> (pos, dist target pos data))
                 |> Seq.filter (fun (_, d) -> d < currentDistance)
                 |> Array.ofSeq
             if possibilities |> Array.length = 0
@@ -38,7 +38,7 @@ let rec climb target pos currentDistance data =
             else
                 let! candidate = possibilities |> Array.sampleOne
                 let newPos, newDistance = candidate
-                return! data |> climb target newPos newDistance
+                return! data |> climb dist target newPos newDistance
     }
 
 let rec uniqueRandomCreate size gen =
@@ -49,13 +49,19 @@ let rec uniqueRandomCreate size gen =
         else return! uniqueRandomCreate size gen
     }
 
-let rec findSolution target numbers size =
+let rec findSolutionGeneric dist target numbers size =
     random {
         let maxPos = (numbers |> Array.length) - 1
         let! start = uniqueRandomCreate size (Statistics.uniformDiscrete (0, maxPos))
-        match! numbers |> climb target start (distance target start numbers) with
+        match! numbers |> climb dist target start (dist target start numbers) with
         | Some result -> return result
-        | None -> return! findSolution target numbers size
+        | None -> return! findSolutionGeneric dist target numbers size
+    }
+
+let findSolution target numbers size =
+    random {
+        let! pos = findSolutionGeneric distance target numbers size
+        return pos |> List.map (fun x -> numbers |> Array.item x)
     }
 
 let run (input: seq<string>, part: string) =

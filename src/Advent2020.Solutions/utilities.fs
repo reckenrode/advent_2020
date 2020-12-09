@@ -3,6 +3,7 @@ module Advent2020.Solutions.Utilities
 open FSharpx.Collections
 
 open System.IO
+open System.Runtime.InteropServices
 
 let cycle xs =
     let originalXs = xs

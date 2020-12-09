@@ -4,10 +4,10 @@ open FsRandom
 
 let name = "day1"
 
-let targetNumber = 2020
+let targetNumber = 2020L
 
-let distance target (ps: list<int>) (data: array<int>) =
-    let sum = ps |> List.fold (fun acc x -> acc + data.[x]) 0
+let distance target ps (data: array<int64>) =
+    let sum = ps |> List.fold (fun acc x -> acc + data.[x]) 0L
     abs (target - sum)
 
 let enumerateNeighbors ps =
@@ -19,9 +19,9 @@ let enumerateNeighbors ps =
 let isInRange bot top x =
     x >= bot && x < top
 
-let rec climb dist target pos currentDistance data =
+let rec climb dist filter target pos currentDistance data =
     random {
-        if currentDistance = 0
+        if currentDistance = 0L
         then return Some pos
         else
             let maxPos = data |> Array.length
@@ -73,4 +73,4 @@ let run (input: seq<string>, part: string) =
         let rng = Utility.createRandomState ()
         let result = rng |> Random.get (findSolution targetNumber numbers size)
         let exp = System.String.Join ("×", result)
-        printfn $"{exp} = {result |> List.fold (*) 1}"
+        printfn $"{exp} = {result |> List.fold (*) 1L}"

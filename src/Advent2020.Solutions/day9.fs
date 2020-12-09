@@ -11,7 +11,7 @@ module XmasCracker =
         LazyList.consDelayed xSums (fun () -> (xs |> calculateSums window))
 
     let findNonSumming window data =
-        let rest = data |> Seq.skip window
+        let rest = data |> List.skip window
         let sums = data |> calculateSums window
         let rec findNonSumming' window data sums =
             match data |> Seq.unCons with

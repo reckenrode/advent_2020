@@ -52,4 +52,8 @@ let run (input: seq<string>, arg: string) =
         | None -> printfn "All the numbers are good. No bad number found."
         | Some badNum ->
             printfn $"The bad number is {badNum}"
+            let weakSequence = nums |> XmasCracker.findWeakSequence badNum
+            let smallest = List.min weakSequence
+            let largest = List.max weakSequence
+            printfn $"The sum of the smallest and larger numbers is {smallest + largest}"
 

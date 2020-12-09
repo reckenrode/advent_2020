@@ -59,6 +59,10 @@ let rec allUnique = function
 | [] -> true
 | x::xs-> xs |> List.forall (fun y -> x <> y) && allUnique xs
 
+module Array2D =
+    let rowSpan row (arr: 'a [,]) =
+        MemoryMarshal.CreateReadOnlySpan (&arr.[row, 0], arr.GetLength 1)
+
 module Result =
     let defaultWith f = function
     | Ok x -> x

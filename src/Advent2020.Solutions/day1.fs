@@ -19,7 +19,7 @@ let enumerateNeighbors ps =
 let isInRange bot top x =
     x >= bot && x < top
 
-let rec climb dist filter target pos currentDistance data =
+let rec climb dist pred target pos currentDistance data =
     random {
         if currentDistance = 0L
         then return Some pos
@@ -29,7 +29,7 @@ let rec climb dist filter target pos currentDistance data =
             let possibilities =
                 enumerateNeighbors pos
                 |> Seq.filter (List.forall isInRange)
-                |> Seq.filter (Utilities.allUnique)
+                |> Seq.filter pred
                 |> Seq.map (fun pos -> (pos, dist target pos data))
                 |> Seq.filter (fun (_, d) -> d < currentDistance)
                 |> Array.ofSeq
@@ -38,7 +38,7 @@ let rec climb dist filter target pos currentDistance data =
             else
                 let! candidate = possibilities |> Array.sampleOne
                 let newPos, newDistance = candidate
-                return! data |> climb dist target newPos newDistance
+                return! data |> climb dist pred target newPos newDistance
     }
 
 let rec uniqueRandomCreate size gen =
@@ -49,18 +49,18 @@ let rec uniqueRandomCreate size gen =
         else return! uniqueRandomCreate size gen
     }
 
-let rec findSolutionGeneric dist target numbers size =
+let rec findSolutionGeneric dist pred target numbers size =
     random {
         let maxPos = (numbers |> Array.length) - 1
         let! start = uniqueRandomCreate size (Statistics.uniformDiscrete (0, maxPos))
-        match! numbers |> climb dist target start (dist target start numbers) with
+        match! numbers |> climb dist pred target start (dist target start numbers) with
         | Some result -> return result
-        | None -> return! findSolutionGeneric dist target numbers size
+        | None -> return! findSolutionGeneric dist pred target numbers size
     }
 
 let findSolution target numbers size =
     random {
-        let! pos = findSolutionGeneric distance target numbers size
+        let! pos = findSolutionGeneric distance Utilities.allUnique target numbers size
         return pos |> List.map (fun x -> numbers |> Array.item x)
     }
 

@@ -7,7 +7,7 @@ module XmasCracker =
     let rec private calculateSums window = function
     | [] -> LazyList.empty
     | x::xs ->
-        let xSums = xs |> Seq.truncate (window - 1) |> Seq.map ((+) x)
+        let xSums = xs |> Seq.truncate (window - 1) |> Seq.map ((+) x) |> LazyList.ofSeq
         LazyList.consDelayed xSums (fun () -> (xs |> calculateSums window))
 
     let findNonSumming window data =
@@ -16,7 +16,10 @@ module XmasCracker =
         let rec findNonSumming' window data sums =
             match data |> Seq.unCons with
             | Some (x, xs) ->
-                let windowSums = sums |> LazyList.take window |> Seq.tryFind (Seq.tryFind ((=) x) >> Option.isSome)
+                let windowSums =
+                    sums
+                    |> LazyList.take window
+                    |> LazyList.tryFind (LazyList.tryFind ((=) x) >> Option.isSome)
                 if windowSums |> Option.isNone
                 then Some x
                 else findNonSumming' window xs (sums |> LazyList.tail)

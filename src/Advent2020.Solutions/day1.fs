@@ -8,7 +8,7 @@ let targetNumber = 2020
 
 let distance target (ps: list<int>) (data: array<int>) =
     let sum = ps |> List.fold (fun acc x -> acc + data.[x]) 0
-    (target - sum) |> System.Math.Abs
+    abs (target - sum)
 
 let enumerateNeighbors ps =
     ps

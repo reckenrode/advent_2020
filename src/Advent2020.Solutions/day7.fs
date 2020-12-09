@@ -3,7 +3,7 @@ module Advent2020.Solutions.Day7
 open Utilities
 
 module BagSolver =
-    let canContain (graph: int [,]) bag =
+    let canContain graph bag =
         let rec canContain' graph seen bag =
             let row = Array2D.rowSpan bag graph
             let (newSeen, _) = Span.fold (fun (s, idx) x ->

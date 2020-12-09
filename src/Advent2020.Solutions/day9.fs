@@ -1,7 +1,9 @@
 module Advent2020.Solutions.Day9
 
+open Advent2020.Solutions.Utilities
 open FSharpx
 open FSharpx.Collections
+open FsRandom
 
 module XmasCracker =
     let rec private calculateSums window = function
@@ -24,6 +26,21 @@ module XmasCracker =
                 else xs |> findNonSumming' window (sums |> LazyList.tail)
             | [] -> None
         rest |> findNonSumming' window sums
+
+    let findWeakSequence badNumber (data: list<int64>) =
+        let arr = data |> Array.ofList
+        let rng = Utility.createRandomState ()
+        let distance target (ps: list<int>) (data: array<int64>) =
+            let lower = min ps.[0] ps.[1]
+            let upper = max ps.[0] ps.[1]
+            let span = System.ReadOnlySpan data
+            let slice = span.Slice (lower, upper - lower)
+            abs (target - Span.fold (+) 0L slice)
+        let predicate = List.forall (fun x -> data.[x] <> badNumber)
+        let result = rng |> Random.get (Day1.findSolutionGeneric distance predicate badNumber arr 2)
+        let lower = List.min result
+        let upper = List.max result
+        data |> List.skip lower |> List.take (upper - lower)
 
 let name = "day9"
 

@@ -34,3 +34,33 @@ module ``the bag solver`` =
         let expected = set [ 0; 1; 2; 3 ]
         let foundBags = BagSolver.canContain input mybag
         foundBags |> should equal expected
+
+    [<Fact>]
+    let ``when determining contents finds all the bags in my bag`` () =
+        let input = array2D [
+            [ 0; 0; 0 ]
+            [ 1; 0; 0 ]
+            [ 0; 0; 0 ]
+        ]
+        let mybag = 1
+        let expected = 0
+        let totalBags = BagSolver.mustContain input mybag
+        totalBags |> should equal expected
+
+    [<Fact>]
+    let ``when determining contents it finds bags inside bags that can hold my bag`` () =
+        let input = array2D [
+            [ 0; 0; 0; 0; 0; 0; 0; 0; 0 ]
+            [ 1; 0; 3; 0; 0; 0; 0; 0; 0 ]
+            [ 0; 0; 0; 0; 0; 0; 0; 0; 0 ]
+            [ 2; 0; 4; 0; 0; 0; 0; 0; 0 ]
+            [ 0; 1; 0; 2; 0; 0; 0; 0; 0 ]
+            [ 0; 0; 0; 0; 1; 0; 0; 0; 0 ]
+            [ 0; 0; 0; 0; 2; 0; 0; 0; 0 ]
+            [ 0; 0; 0; 0; 0; 4; 6; 0; 0 ]
+            [ 0; 0; 0; 9; 0; 3; 5; 0; 0 ]
+        ]
+        let mybag = 4
+        let expected = 32
+        let totalBags = BagSolver.mustContain input mybag
+        totalBags |> should equal expected

@@ -21,6 +21,17 @@ module BagSolver =
                 newSeen |> Seq.map (canContain' graph seen) |> Set.unionMany
         canContain' graph Set.empty bag
 
+    let mustContain graph bag =
+        let rec mustContain' (graph: int [,]) total bag =
+            let col = graph.[*, bag]
+            let (bags, _) = col |> Array.fold setOfIndices (Set.empty, 0)
+            if bags |> Set.count = 0
+            then total
+            else
+                let sum = col |> Seq.sum
+                sum + (bags |> Seq.map (fun x -> col.[x] * (mustContain' graph total x)) |> Seq.sum)
+        mustContain' graph 0 bag
+
 type Rules = private Rules of array<string> * int [,]
 
 module Rules =

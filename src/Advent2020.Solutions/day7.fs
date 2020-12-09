@@ -72,11 +72,20 @@ module Rules =
         let bagIdx = indices |> Array.findIndex ((=) bag)
         BagSolver.canContain graph bagIdx |> Set.map (fun idx -> indices |> Array.item idx)
 
+    let countOfContainedBags bag (Rules (indices, graph)) =
+        let bagIdx = indices |> Array.findIndex ((=) bag)
+        BagSolver.mustContain graph bagIdx
+
 let name = "day7"
 
 let run (input: seq<string>, arg: string) =
     match Rules.parse input with
     | None -> printfn "error parsing bags"
     | Some rules ->
-        let bags = rules |> Rules.outermostContainingBags "shiny gold"
-        printfn $"# bags that can contain a shiny gold bag: {bags |> Set.count}"
+        if arg = "bag_count"
+        then
+            let count = rules |> Rules.countOfContainedBags "shiny gold"
+            printfn $"shiny gold bag must contain {count} bags"
+        else
+            let bags = rules |> Rules.outermostContainingBags "shiny gold"
+            printfn $"# bags that can contain a shiny gold bag: {bags |> Set.count}"

@@ -61,3 +61,6 @@ let run (input: seq<string>, arg: string) =
             let threeCount = statistics |> Map.tryFind 3 |> Option.getOrElse 0
             printfn $"The distribution is: {statistics}"
             printfn $"The product of the 1- and 3-counts is: {oneCount * threeCount}"
+
+            let walks = chain |> AdapterAnalyzer.countArrangements 0
+            printfn $"The number of different ways to arrange the adapters is: {walks}"

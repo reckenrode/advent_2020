@@ -1,7 +1,9 @@
 module Advent2020.Solutions.Day10
 
 open FSharpx
+open MathNet.Numerics.LinearAlgebra
 
+#nowarn "25"
 module AdapterAnalyzer =
     let createChain socketJoltage adapters =
         match adapters |> List.sort with
@@ -18,6 +20,32 @@ module AdapterAnalyzer =
         |> Seq.map (fun (lhs, rhs) -> rhs - lhs)
         |> Seq.countBy id
         |> Map.ofSeq
+
+    let private buildGraph size lst =
+        let findAdjacents cur = List.takeWhile (fun x -> x - cur <= 3)
+        let rec loop acc = function
+            | [] -> acc
+            | x::xs -> xs |> loop ((x, (findAdjacents x xs))::acc)
+        lst |> loop [] |> Map.ofList
+
+    let countWalks startNode endNode adjacencyList =
+        let size = endNode + 1
+        let mutable graph = Matrix<float>.Build.Dense (size, size, 0.0)
+        adjacencyList |> Map.toList |> List.iter (fun (x, adjacents) ->
+            adjacents |> List.iter (fun a ->
+                graph.[x, a] <- 1.0))
+        let rec countWalks' longestWalk acc (walked: Matrix<float>) =
+            if longestWalk = 0
+            then acc |> int64
+            else graph * walked |> countWalks' (longestWalk - 1) (acc + walked.[startNode, endNode])
+        graph |> countWalks' (adjacencyList |> Map.count) 0.0
+
+    let countArrangements socketJoltage adapters =
+        let (x::xs) = socketJoltage::adapters |> List.sort |> List.rev
+        let deviceJoltage = x + 3
+        let sorted = deviceJoltage::x::xs |> List.rev
+        let graph = sorted |> buildGraph (deviceJoltage + 1)
+        graph |> countWalks socketJoltage deviceJoltage
 
 let name = "day10"
 

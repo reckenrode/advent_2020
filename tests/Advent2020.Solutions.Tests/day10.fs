@@ -18,3 +18,10 @@ module ``the adapter analyzer`` =
         let expected = Map.ofList [ (1, 7); (3, 5) ]
         let result = AdapterAnalyzer.findDifferences 0 input
         result |> should equal expected
+
+    [<Fact>]
+    let ``counts the number of ways to arrange the adapters`` () =
+        let input = [ 16; 10; 15; 5; 1; 11; 7; 19; 6; 12; 4 ]
+        let expected = 8L
+        let result = AdapterAnalyzer.countArrangements 0 input
+        result |> should equal expected

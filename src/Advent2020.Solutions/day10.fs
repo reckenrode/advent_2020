@@ -17,7 +17,7 @@ module AdapterAnalyzer =
         let chain = Seq.concat [[socketJoltage]; adapters; [deviceJoltage]]
         chain
         |> Seq.pairwise
-        |> Seq.map (fun (lhs, rhs) -> rhs - lhs)
+        |> Seq.map ((flip >> uncurry) (-))
         |> Seq.countBy id
         |> Map.ofSeq
 

@@ -14,6 +14,7 @@
     <Compile Include="day7.fs" />
     <Compile Include="day9.fs" />
     <Compile Include="day10.fs" />
+    <Compile Include="day11.fs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FParsec" Version="1.1.*" />

@@ -63,6 +63,8 @@ let rec allUnique = function
 module Array2D =
     let rowSpan row (arr: 'a [,]) =
         MemoryMarshal.CreateReadOnlySpan (&arr.[row, 0], arr.GetLength 1)
+    let width (arr: 'a [,]) = arr.GetLength 1
+    let height (arr: 'a [,]) = arr.GetLength 0
 
 module Result =
     let defaultWith f = function

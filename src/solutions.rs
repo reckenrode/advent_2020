@@ -1,5 +1,7 @@
 use clap::Clap;
 
+mod day11;
+
 #[derive(Clap)]
 pub enum Solution {
     Day11

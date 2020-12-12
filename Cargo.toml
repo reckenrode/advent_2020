@@ -10,3 +10,6 @@ description = "Advent of Code 2020 solutions written in Rust"
 [dependencies]
 "anyhow" = "1.0"
 "clap" = "3.0.0-beta.2"
+
+[dev-dependencies]
+"proptest" = "0.10.1"

@@ -23,7 +23,7 @@ fn update_grid(grid: &mut [u8], src: &[Vec<u8>; 2], row: usize, length: usize) {
     slice.copy_from_slice(&src[src_index]);
 }
 
-pub fn four_near_filter(grid: &mut [u8], width: usize, height: usize) {
+fn four_near_filter(grid: &mut [u8], width: usize, height: usize) {
     let mut new_grid = Vec::new();
     new_grid.resize(width * height, FLOOR);
     for (row_index, row) in new_grid.chunks_mut(width).enumerate() {

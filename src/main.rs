@@ -11,5 +11,7 @@ struct Options {
 
 fn main() {
     let opts = Options::parse();
-    opts.solution.run()
+    opts.solution.run().unwrap_or_else(|err| {
+        println!("Something went wrong running the solution: {}", err);
+    });
 }

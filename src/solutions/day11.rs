@@ -1,5 +1,9 @@
 mod waiting_area;
 
+use anyhow::anyhow;
+use clap::Clap;
+use waiting_area::WaitingArea;
+
 const SEAT: u8 = 'L' as u8;
 const PERSON: u8 = '#' as u8;
 const FLOOR: u8 = '.' as u8;
@@ -54,6 +58,25 @@ impl Day11Extensions for waiting_area::WaitingArea {
     }
 }
 
+#[derive(Clap)]
+pub struct Solution {
+    input: std::path::PathBuf,
+}
+
+impl Solution {
+    pub fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let data = std::fs::read_to_string(&self.input)?;
+        let mut room = WaitingArea::parse(&data)
+            .ok_or(anyhow!("error parsing room data in the input file"))?;
+        room.wait_until_stable();
+        let contents = room.to_string();
+        let occupied_seats = contents.chars()
+            .filter(|ch| *ch == '#')
+            .count();
+        println!("There are {} occupied seats.", occupied_seats);
+        Ok(())
+    }
+}
 
 #[cfg(test)]
 mod tests {

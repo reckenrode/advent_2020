@@ -1,3 +1,4 @@
+mod part1;
 mod waiting_area;
 
 use anyhow::anyhow;
@@ -46,10 +47,10 @@ impl Day11Extensions for waiting_area::WaitingArea {
     fn wait_until_stable(&mut self) {
         let mut current_area = self.to_string();
         let mut new_area;
-        self.apply_rules(nearby_filter);
+        self.apply_rules(part1::nearby_filter);
         while { new_area = self.to_string(); current_area != new_area } {
             current_area = new_area;
-            self.apply_rules(nearby_filter);
+            self.apply_rules(part1::nearby_filter);
         }
     }
 }

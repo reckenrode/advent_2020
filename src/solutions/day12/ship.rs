@@ -1,7 +1,7 @@
 pub struct Ship {
     position: (f64, f64),
 }
-
+#[derive(Debug)]
 pub enum Action {
     MoveNorth(u32),
     MoveSouth(u32),

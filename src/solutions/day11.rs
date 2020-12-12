@@ -2,11 +2,7 @@ mod waiting_area;
 
 use anyhow::anyhow;
 use clap::Clap;
-use waiting_area::WaitingArea;
-
-const SEAT: u8 = 'L' as u8;
-const PERSON: u8 = '#' as u8;
-const FLOOR: u8 = '.' as u8;
+use waiting_area::{SEAT, PERSON, FLOOR, WaitingArea};
 
 fn neighbors(row: usize, column: usize) -> [(usize, usize); 8] {
     [

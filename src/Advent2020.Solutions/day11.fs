@@ -27,6 +27,12 @@ let nearbyFilter grid =
             | 'L' when occupied = 0 -> '#'
             | _ -> currentCell
 
+let rec waitUntilStable f area =
+    let result = area |> WaitingArea.applyRules f
+    if result = area
+    then result
+    else result |> waitUntilStable f
+
 let name = "day11"
 
 // let run (input: string, arg: string) =

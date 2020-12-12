@@ -19,11 +19,11 @@ module ``Waiting Room Filters`` =
             return (string result) |> should equal expected
         }
 
-//     [<Fact>]
-//     let ``an occupied seat becomes empty when four or more adjacent seats are occupied`` () =
-//         result {
-//             let! waitingArea = WaitingArea.parse "#.##\n####"
-//             let expected = "#.L#\n#LL#"
-//             let result = waitingArea |> WaitingArea.applyRules Day11.fourNearFilter
-//             return (string result) |> should equal expected
-//         }
+    [<Fact>]
+    let ``an occupied seat becomes empty when four or more adjacent seats are occupied`` () =
+        result {
+            let! waitingArea = WaitingArea.parse "#.##\n####"
+            let expected = "#.L#\n#LL#"
+            let result = waitingArea |> WaitingArea.applyRules Day11.nearbyFilter
+            return (string result) |> should equal expected
+        }

@@ -21,7 +21,7 @@ fn neighbors(row: usize, column: usize) -> [(usize, usize); 8] {
     ]
 }
 
-fn four_near_filter(grid: &mut [u8], width: usize, height: usize) {
+fn nearby_filter(grid: &mut [u8], width: usize, height: usize) {
     let mut new_grid = Vec::new();
     new_grid.resize(width * height, FLOOR);
     for (row_index, row) in new_grid.chunks_mut(width).enumerate() {
@@ -50,10 +50,10 @@ impl Day11Extensions for waiting_area::WaitingArea {
     fn wait_until_stable(&mut self) {
         let mut current_area = self.to_string();
         let mut new_area;
-        self.apply_rules(four_near_filter);
+        self.apply_rules(nearby_filter);
         while { new_area = self.to_string(); current_area != new_area } {
             current_area = new_area;
-            self.apply_rules(four_near_filter);
+            self.apply_rules(nearby_filter);
         }
     }
 }
@@ -82,13 +82,13 @@ impl Solution {
 mod tests {
     use super::{waiting_area::*, *};
 
-    mod seating_filter {
+    mod nearby_filter {
         use super::*;
         #[test]
         fn an_empty_seat_becomes_occupied_when_no_occupied_seats_are_adjacent() {
             let mut waiting_area = WaitingArea::parse("L.LL\nLLLL").unwrap();
             let expected = "#.##\n####";
-            waiting_area.apply_rules(four_near_filter);
+            waiting_area.apply_rules(nearby_filter);
             assert_eq!(waiting_area.to_string(), expected);
         }
 
@@ -96,7 +96,7 @@ mod tests {
         fn an_occupied_seat_becomes_empty_when_four_or_more_adjacent_seats_are_occupied() {
             let mut waiting_area = WaitingArea::parse("#.##\n####").unwrap();
             let expected = "#.L#\n#LL#";
-            waiting_area.apply_rules(four_near_filter);
+            waiting_area.apply_rules(nearby_filter);
             assert_eq!(waiting_area.to_string(), expected);
         }
     }

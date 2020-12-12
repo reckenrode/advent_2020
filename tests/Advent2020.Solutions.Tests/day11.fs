@@ -24,6 +24,25 @@ module ``Waiting Room Filters`` =
             return (string result) |> should equal expected
         }
 
+module ``Line of Sight Filters`` =
+    [<Fact>]
+    let ``an empty seat becomes occupied when no occupied seats are adjacent`` () =
+        result {
+            let! waitingArea = WaitingArea.parse "L.LL\nLLLL"
+            let expected = "#.##\n####"
+            let result = waitingArea |> WaitingArea.applyRules Day11.lineOfSightFilter
+            return (string result) |> should equal expected
+        }
+
+    [<Fact>]
+    let ``an occupied seat becomes empty when four or more adjacent seats are occupied`` () =
+        result {
+            let! waitingArea = WaitingArea.parse "####\n####"
+            let expected = "#LL#\n#LL#"
+            let result = waitingArea |> WaitingArea.applyRules Day11.lineOfSightFilter
+            return (string result) |> should equal expected
+        }
+
 module ``Waiting Around`` =
     [<Fact>]
     let ``eventually stabilizes when iteratively running the filter`` () =

@@ -32,13 +32,23 @@ let neighbors (r, c) _ =
     Day1.enumerateNeighbors [r; c] |> Seq.map rcFromList
 
 let nearbyFilter = mkFilter neighbors (mkEvaluateTally 4)
+
+let rec private castRays (r, c) grid ((deltaR, deltaC) as v)  =
+    let width = grid |> Array2D.width
+    let height = grid |> Array2D.height
+    let r = r + deltaR
+    let c = c + deltaC
+    if r >= 0 && r < height && c >= 0 && c < width && grid.[r, c] = '.'
+    then castRays (r, c) grid v
+    else (r, c)
+
+let lineOfSightFilter =
     mkFilter
-        (fun (r, c) height width grid ->
-            Day1.enumerateNeighbors [r; c]
+        (fun pos grid ->
+            Day1.enumerateNeighbors [0; 0]
             |> Seq.map rcFromList
-            |> Seq.filter (fun (r, c) -> r >= 0 && c >= 0 && r < height && c < width)
-            |> Seq.map (fun (r, c) -> grid.[r, c]))
-        (mkEvaluateTally 4)
+            |> Seq.map (castRays pos grid))
+        (mkEvaluateTally 5)
 
 let rec waitUntilStable f area =
     let result = area |> WaitingArea.applyRules f

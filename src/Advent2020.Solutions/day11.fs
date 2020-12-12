@@ -16,7 +16,9 @@ let mkFilter neighbors evaluateTally grid =
         then currentCell
         else
             let occupied =
-                neighbors (r, c) height width grid
+                neighbors (r, c) grid
+                |> Seq.filter (fun (r, c) -> r >= 0 && c >= 0 && r < height && c < width)
+                |> Seq.map (fun (r, c) -> grid.[r, c])
                 |> Seq.fold (fun ocp cell -> if cell = '#' then ocp + 1 else ocp) 0
             evaluateTally occupied currentCell
 
@@ -26,7 +28,10 @@ let mkEvaluateTally target tally cell=
     | 'L' when tally = 0 -> '#'
     | _ -> cell
 
-let nearbyFilter =
+let neighbors (r, c) _ =
+    Day1.enumerateNeighbors [r; c] |> Seq.map rcFromList
+
+let nearbyFilter = mkFilter neighbors (mkEvaluateTally 4)
     mkFilter
         (fun (r, c) height width grid ->
             Day1.enumerateNeighbors [r; c]

@@ -2,6 +2,7 @@ use clap::Clap;
 use std::error::Error;
 
 mod day11;
+mod day12;
 
 #[derive(Clap)]
 pub enum Solution {

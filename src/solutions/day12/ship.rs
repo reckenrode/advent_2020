@@ -3,10 +3,10 @@ pub struct Ship {
 }
 #[derive(Debug)]
 pub enum Action {
-    MoveNorth(u32),
-    MoveSouth(u32),
-    MoveEast(u32),
-    MoveWest(u32),
+    MoveNorth(u16),
+    MoveSouth(u16),
+    MoveEast(u16),
+    MoveWest(u16),
 }
 
 impl Ship {
@@ -61,10 +61,10 @@ mod tests {
 
     fn lateral_movement() -> impl Strategy<Value = Action> {
         prop_oneof![
-            any::<u32>().prop_map(Action::MoveNorth),
-            any::<u32>().prop_map(Action::MoveSouth),
-            any::<u32>().prop_map(Action::MoveEast),
-            any::<u32>().prop_map(Action::MoveWest),
+            any::<u16>().prop_map(Action::MoveNorth),
+            any::<u16>().prop_map(Action::MoveSouth),
+            any::<u16>().prop_map(Action::MoveEast),
+            any::<u16>().prop_map(Action::MoveWest),
         ]
     }
 
@@ -79,7 +79,7 @@ mod tests {
 
     proptest! {
         #[test]
-        fn when_the_action_is_north_the_ship_coordinates_change_by_the_specified_value(dist: u32) {
+        fn when_the_action_is_north_the_ship_coordinates_change_by_the_specified_value(dist: u16) {
             let expected_position = (0.0, dist as f64);
             let mut ship = Ship::new();
             ship.act(Action::MoveNorth(dist));
@@ -87,7 +87,7 @@ mod tests {
         }
 
         #[test]
-        fn when_the_action_is_south_the_ship_coordinates_change_by_the_specified_value(dist: u32) {
+        fn when_the_action_is_south_the_ship_coordinates_change_by_the_specified_value(dist: u16) {
             let expected_position = (0.0, -(dist as f64));
             let mut ship = Ship::new();
             ship.act(Action::MoveSouth(dist));
@@ -95,7 +95,7 @@ mod tests {
         }
 
         #[test]
-        fn when_the_action_is_east_the_ship_coordinates_change_by_the_specified_value(dist: u32) {
+        fn when_the_action_is_east_the_ship_coordinates_change_by_the_specified_value(dist: u16) {
             let expected_position = (dist as f64, 0.0);
             let mut ship = Ship::new();
             ship.act(Action::MoveEast(dist));
@@ -103,7 +103,7 @@ mod tests {
         }
 
         #[test]
-        fn when_the_action_is_west_the_ship_coordinates_change_by_the_specified_value(dist: u32) {
+        fn when_the_action_is_west_the_ship_coordinates_change_by_the_specified_value(dist: u16) {
             let expected_position = (-(dist as f64), 0.0);
             let mut ship = Ship::new();
             ship.act(Action::MoveWest(dist));

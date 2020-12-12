@@ -7,17 +7,17 @@ use clap::Clap;
 use waiting_area::WaitingArea;
 
 pub trait Day11Extensions {
-    fn wait_until_stable(&mut self);
+    fn wait_until_stable(&mut self, filter: impl Fn(&mut [u8], usize, usize) + Copy);
 }
 
 impl Day11Extensions for WaitingArea {
-    fn wait_until_stable(&mut self) {
+    fn wait_until_stable(&mut self, filter: impl Fn(&mut [u8], usize, usize) + Copy) {
         let mut current_area = self.to_string();
         let mut new_area;
-        self.apply_rules(part1::nearby_filter);
+        self.apply_rules(filter);
         while { new_area = self.to_string(); current_area != new_area } {
             current_area = new_area;
-            self.apply_rules(part1::nearby_filter);
+            self.apply_rules(filter);
         }
     }
 }
@@ -25,14 +25,22 @@ impl Day11Extensions for WaitingArea {
 #[derive(Clap)]
 pub struct Solution {
     input: std::path::PathBuf,
+    #[clap(short = 'l', long = "los", about = "Use the line-of-sight filter instead of the nearby filter")]
+    line_of_sight_filter: bool,
 }
 
 impl Solution {
     pub fn run(&self) -> Result<(), Box<dyn std::error::Error>> {
+        let filter =
+            if self.line_of_sight_filter {
+                part2::line_of_sight_filter
+            } else {
+                part1::nearby_filter
+            };
         let data = std::fs::read_to_string(&self.input)?;
         let mut room = WaitingArea::parse(&data)
             .ok_or(anyhow!("error parsing room data in the input file"))?;
-        room.wait_until_stable();
+        room.wait_until_stable(filter);
         let contents = room.to_string();
         let occupied_seats = contents.chars()
             .filter(|ch| *ch == '#')
@@ -71,7 +79,7 @@ mod tests {
             #.LLLLLL.L\n\
             #.#L#L#.##";
         let mut waiting_area = WaitingArea::parse(initial_room).unwrap();
-        waiting_area.wait_until_stable();
+        waiting_area.wait_until_stable(part1::nearby_filter);
         assert_eq!(waiting_area.to_string(), expected_area_contents);
     }
 }

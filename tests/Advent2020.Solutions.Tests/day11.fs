@@ -1,6 +1,6 @@
 module Advent2020.Solutions.Tests.Day11
 
-open Advent2020.Solutions.Day11
+open Advent2020.Solutions
 open FSharpx.Result
 open FsUnit
 open Xunit

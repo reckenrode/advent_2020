@@ -61,7 +61,8 @@ let name = "day11"
 let run (input: string, arg: string) =
     result {
         let! area = input |> WaitingArea.parse
-        let result = area |> waitUntilStable nearbyFilter
+        let filter = if arg = "los" then lineOfSightFilter else nearbyFilter
+        let result = area |> waitUntilStable filter
         let occupiedChairs = string result |> Seq.filter ((=) '#') |> Seq.length
         return printfn $"There are {occupiedChairs} occupied seats."
     }

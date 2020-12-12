@@ -20,6 +20,12 @@ let mkFilter neighbors evaluateTally grid =
                 |> Seq.fold (fun ocp cell -> if cell = '#' then ocp + 1 else ocp) 0
             evaluateTally occupied currentCell
 
+let mkEvaluateTally target tally cell=
+    match cell with
+    | '#' when tally >= target -> 'L'
+    | 'L' when tally = 0 -> '#'
+    | _ -> cell)
+
 let nearbyFilter =
     mkFilter
         (fun (r, c) height width grid ->
@@ -27,11 +33,7 @@ let nearbyFilter =
             |> Seq.map rcFromList
             |> Seq.filter (fun (r, c) -> r >= 0 && c >= 0 && r < height && c < width)
             |> Seq.map (fun (r, c) -> grid.[r, c]))
-        (fun tally cell ->
-            match cell with
-            | '#' when tally >= 4 -> 'L'
-            | 'L' when tally = 0 -> '#'
-            | _ -> cell)
+        (mkEvaluateTally 4)
 
 let rec waitUntilStable f area =
     let result = area |> WaitingArea.applyRules f

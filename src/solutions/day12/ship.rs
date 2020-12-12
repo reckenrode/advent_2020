@@ -112,8 +112,6 @@ mod tests {
 
         #[test]
         fn when_the_ship_moves_it_starts_from_its_current_position(a1 in lateral_movement(), a2 in lateral_movement()) {
-            let a1 = Action::MoveNorth(1);
-            let a2 = Action::MoveWest(0);
             let (a1x, a1y) = position_from_action(&a1);
             let (a2x, a2y) = position_from_action(&a2);
             let expected_position = (a1x + a2x, a1y + a2y);

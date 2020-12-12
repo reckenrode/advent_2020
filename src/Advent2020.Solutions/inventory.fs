@@ -17,6 +17,11 @@ module Inventory =
         && (m.GetParameters () |> Array.map (fun x -> x.ParameterType)) = [| typeof<string>; typeof<string> |]
         && m.ReturnType = typeof<System.Void>
 
+    let private isRunMethodRawResult (m: MethodInfo) =
+        (not <| isNull m)
+        && (m.GetParameters () |> Array.map (fun x -> x.ParameterType)) = [| typeof<string>; typeof<string> |]
+        && m.ReturnType = typeof<Result<FSharp.Core.Unit, string>>
+
     let private getName (p: PropertyInfo) =
         p.GetValue null :?> string
 
@@ -30,6 +35,14 @@ module Inventory =
            Utilities.read path
            |> Result.map (fun input -> m.Invoke (null, [| input; arg |]) :?> unit)
 
+    let private makeRunFuncRawResult (m: MethodInfo) =
+        fun (path: string, arg: string) ->
+           Utilities.read path
+           |> Result.map (fun input ->
+                match m.Invoke (null, [| input; arg |]) :?> Result<unit, string> with
+                | Ok result -> result
+                | Error ex -> printfn $"{ex}")
+
     let private solutionModule (t: System.Type) =
         let bindingFlags = BindingFlags.Public ||| BindingFlags.Static
         match (t.GetProperty "name", t.GetMethod ("run", bindingFlags)) with
@@ -37,6 +50,8 @@ module Inventory =
             Some (getName name, makeRunFunc run)
         | (name, run) when isSolutionName name && isRunMethodRaw run ->
             Some (getName name, makeRunFuncRaw run)
+        | (name, run) when isSolutionName name && isRunMethodRawResult run ->
+            Some (getName name, makeRunFuncRawResult run)
         | _ -> None
 
     let solutions: Map<string, string * string -> Result<unit, exn>> =

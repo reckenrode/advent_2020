@@ -7,10 +7,6 @@ open Xunit
 
 module ``Waiting Room Filters`` =
     [<Fact>]
-    let hmm () =
-        true |> should equal true
-
-    [<Fact>]
     let ``an empty seat becomes occupied when no occupied seats are adjacent`` () =
         result {
             let! waitingArea = WaitingArea.parse "L.LL\nLLLL"

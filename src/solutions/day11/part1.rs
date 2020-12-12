@@ -1,6 +1,4 @@
-use waiting_area::*;
-
-use super::waiting_area;
+use super::waiting_area::*;
 
 pub fn nearby_filter(grid: &mut [u8], width: usize, height: usize) {
     let mut new_grid = Vec::new();

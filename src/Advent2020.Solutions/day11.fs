@@ -1,5 +1,6 @@
 module Advent2020.Solutions.Day11
 
+open FSharpx.Result
 open Utilities
 
 let private rcFromList = function
@@ -35,4 +36,10 @@ let rec waitUntilStable f area =
 
 let name = "day11"
 
-// let run (input: string, arg: string) =
+let run (input: string, arg: string) =
+    result {
+        let! area = input |> WaitingArea.parse
+        let result = area |> waitUntilStable nearbyFilter
+        let occupiedChairs = string result |> Seq.filter ((=) '#') |> Seq.length
+        return printfn $"There are {occupiedChairs} occupied seats."
+    }

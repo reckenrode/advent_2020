@@ -58,6 +58,15 @@ mod tests {
 
     use proptest::prelude::*;
 
+    fn lateral_movement() -> impl Strategy<Value = Action> {
+        prop_oneof![
+            any::<u32>().prop_map(Action::MoveNorth),
+            any::<u32>().prop_map(Action::MoveSouth),
+            any::<u32>().prop_map(Action::MoveEast),
+            any::<u32>().prop_map(Action::MoveWest),
+        ]
+    }
+
     proptest! {
         #[test]
         fn when_the_action_is_north_the_ship_coordinates_change_by_the_specified_value(dist: u32) {

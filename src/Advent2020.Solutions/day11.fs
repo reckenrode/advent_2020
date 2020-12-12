@@ -24,7 +24,7 @@ let mkEvaluateTally target tally cell=
     match cell with
     | '#' when tally >= target -> 'L'
     | 'L' when tally = 0 -> '#'
-    | _ -> cell)
+    | _ -> cell
 
 let nearbyFilter =
     mkFilter

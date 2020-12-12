@@ -68,6 +68,15 @@ mod tests {
         ]
     }
 
+    fn position_from_action(action: &Action) -> (f64, f64) {
+        match action {
+            Action::MoveNorth(dy) => (0.0, *dy as f64),
+            Action::MoveSouth(dy) => (0.0, -(*dy as f64)),
+            Action::MoveEast(dx) => (*dx as f64, 0.0),
+            Action::MoveWest(dx) => (-(*dx as f64), 0.0),
+        }
+    }
+
     proptest! {
         #[test]
         fn when_the_action_is_north_the_ship_coordinates_change_by_the_specified_value(dist: u32) {
@@ -103,14 +112,6 @@ mod tests {
 
         #[test]
         fn when_the_ship_moves_it_starts_from_its_current_position(a1 in lateral_movement(), a2 in lateral_movement()) {
-            fn position_from_action(action: &Action) -> (f64, f64) {
-                match action {
-                    Action::MoveNorth(dy) => (0.0, *dy as f64),
-                    Action::MoveSouth(dy) => (0.0, -(*dy as f64)),
-                    Action::MoveEast(dx) => (*dx as f64, 0.0),
-                    Action::MoveWest(dx) => (-(*dx as f64), 0.0),
-                }
-            }
             let a1 = Action::MoveNorth(1);
             let a2 = Action::MoveWest(0);
             let (a1x, a1y) = position_from_action(&a1);

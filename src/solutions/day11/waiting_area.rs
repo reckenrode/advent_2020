@@ -1,5 +1,9 @@
 use std::{ fmt, str };
 
+pub const SEAT: u8 = 'L' as u8;
+pub const PERSON: u8 = '#' as u8;
+pub const FLOOR: u8 = '.' as u8;
+
 #[derive(Debug, PartialEq)]
 pub struct WaitingArea {
     pub width: usize,

@@ -56,7 +56,7 @@ let private rcFromList = function
 | r::c::_ -> (r, c)
 | _ -> failwith "expected two elements but got something else. This should not happen."
 
-let fourNearFilter grid =
+let nearbyFilter grid =
     let width = grid |> Array2D.width
     let height = grid |> Array2D.height
     let neighbors (r, c) =

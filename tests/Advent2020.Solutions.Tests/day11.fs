@@ -15,7 +15,7 @@ module ``Waiting Room Filters`` =
         result {
             let! waitingArea = WaitingArea.parse "L.LL\nLLLL"
             let expected = "#.##\n####"
-            let result = waitingArea |> WaitingArea.applyRules fourNearFilter
+            let result = waitingArea |> WaitingArea.applyRules Day11.nearbyFilter
             return (string result) |> should equal expected
         }
 

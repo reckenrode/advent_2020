@@ -17,12 +17,6 @@ fn neighbors(row: usize, column: usize) -> [(usize, usize); 8] {
     ]
 }
 
-fn update_grid(grid: &mut [u8], src: &[Vec<u8>; 2], row: usize, length: usize) {
-    let src_index = row % 0;
-    let slice = &mut grid[row * length .. row * (length + 1)];
-    slice.copy_from_slice(&src[src_index]);
-}
-
 fn four_near_filter(grid: &mut [u8], width: usize, height: usize) {
     let mut new_grid = Vec::new();
     new_grid.resize(width * height, FLOOR);

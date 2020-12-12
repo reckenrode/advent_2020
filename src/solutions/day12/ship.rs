@@ -29,11 +29,12 @@ impl Ship {
 
 impl Action {
     fn apply(&self, ship: &mut Ship) {
+        let (x, y) = ship.position;
         match self {
-            Self::MoveNorth(dy) => ship.position = (0.0, *dy as f64),
-            Self::MoveSouth(dy) => ship.position = (0.0, -(*dy as f64)),
-            Self::MoveEast(dx) => ship.position = (*dx as f64, 0.0),
-            Self::MoveWest(dx) => ship.position = (-(*dx as f64), 0.0),
+            Self::MoveNorth(dy) => ship.position = (x, y + *dy as f64),
+            Self::MoveSouth(dy) => ship.position = (x, y - *dy as f64),
+            Self::MoveEast(dx) => ship.position = (x + *dx as f64, y),
+            Self::MoveWest(dx) => ship.position = (x - *dx as f64, y),
         }
     }
 }
@@ -97,6 +98,27 @@ mod tests {
             let expected_position = (-(dist as f64), 0.0);
             let mut ship = Ship::new();
             ship.act(Action::MoveWest(dist));
+            prop_assert_eq!(ship.position(), expected_position);
+        }
+
+        #[test]
+        fn when_the_ship_moves_it_starts_from_its_current_position(a1 in lateral_movement(), a2 in lateral_movement()) {
+            fn position_from_action(action: &Action) -> (f64, f64) {
+                match action {
+                    Action::MoveNorth(dy) => (0.0, *dy as f64),
+                    Action::MoveSouth(dy) => (0.0, -(*dy as f64)),
+                    Action::MoveEast(dx) => (*dx as f64, 0.0),
+                    Action::MoveWest(dx) => (-(*dx as f64), 0.0),
+                }
+            }
+            let a1 = Action::MoveNorth(1);
+            let a2 = Action::MoveWest(0);
+            let (a1x, a1y) = position_from_action(&a1);
+            let (a2x, a2y) = position_from_action(&a2);
+            let expected_position = (a1x + a2x, a1y + a2y);
+            let mut ship = Ship::new();
+            ship.act(a1);
+            ship.act(a2);
             prop_assert_eq!(ship.position(), expected_position);
         }
     }

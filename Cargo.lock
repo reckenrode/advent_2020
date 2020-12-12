@@ -4,8 +4,15 @@
 name = "advent_2020"
 version = "2020.12.11"
 dependencies = [
+ "anyhow",
  "clap",
 ]
+
+[[package]]
+name = "anyhow"
+version = "1.0.35"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2c0df63cb2955042487fad3aefd2c6e3ae7389ac5dc1beb28921de0b69f779d4"
 
 [[package]]
 name = "atty"

@@ -9,7 +9,7 @@ pub trait Day11Extensions {
     fn wait_until_stable(&mut self);
 }
 
-impl Day11Extensions for waiting_area::WaitingArea {
+impl Day11Extensions for WaitingArea {
     fn wait_until_stable(&mut self) {
         let mut current_area = self.to_string();
         let mut new_area;

@@ -1,4 +1,5 @@
 mod part1;
+mod part2;
 mod waiting_area;
 
 use anyhow::anyhow;

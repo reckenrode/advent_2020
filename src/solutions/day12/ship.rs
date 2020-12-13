@@ -1,5 +1,7 @@
+use nalgebra::{Matrix3, Vector3};
+
 pub struct Ship {
-    position: (f64, f64),
+    position: (i32, i32),
     rotation: u16,
 }
 #[derive(Debug)]
@@ -10,12 +12,13 @@ pub enum Action {
     MoveWest(u16),
     RotateLeft(u16),
     RotateRight(u16),
+    MoveForward(u16),
 }
 
 impl Ship {
     pub fn new() -> Self {
         Ship {
-            position: (0.0, 0.0),
+            position: (0, 0),
             rotation: 0
         }
     }
@@ -28,7 +31,7 @@ impl Ship {
         self.rotation
     }
 
-    pub fn position(&self) -> (f64, f64) {
+    pub fn position(&self) -> (i32, i32) {
         self.position
     }
 
@@ -38,6 +41,19 @@ impl Ship {
             Orientation::Left => angle % 360,
         };
         self.rotation = (self.rotation + angle) % 360;
+    }
+
+    fn travel(&mut self, distance: u16) {
+        let theta = (self.orientation() as f64).to_radians();
+        let position = self.position();
+        let m = Matrix3::new(
+            theta.cos(), -theta.sin(), position.0 as f64,
+            theta.sin(), theta.cos(), position.1 as f64,
+            0., 0., 1.
+        );
+        let position = Vector3::new(distance as f64, 0., 1.);
+        let new_position = m * position;
+        self.position = (new_position[0] as i32, new_position[1] as i32)
     }
 }
 
@@ -49,12 +65,13 @@ impl Action {
     fn apply(&self, ship: &mut Ship) {
         let (x, y) = ship.position;
         match self {
-            Self::MoveNorth(dy) => ship.position = (x, y + *dy as f64),
-            Self::MoveSouth(dy) => ship.position = (x, y - *dy as f64),
-            Self::MoveEast(dx) => ship.position = (x + *dx as f64, y),
-            Self::MoveWest(dx) => ship.position = (x - *dx as f64, y),
+            Self::MoveNorth(dy) => ship.position = (x, y + *dy as i32),
+            Self::MoveSouth(dy) => ship.position = (x, y - *dy as i32),
+            Self::MoveEast(dx) => ship.position = (x + *dx as i32, y),
+            Self::MoveWest(dx) => ship.position = (x - *dx as i32, y),
             Self::RotateLeft(theta) => ship.rotate(*theta, Orientation::Left),
             Self::RotateRight(theta) => ship.rotate(*theta, Orientation::Right),
+            Self::MoveForward(distance) => ship.travel(*distance),
         }
     }
 }
@@ -65,7 +82,7 @@ mod tests {
 
     #[test]
     fn when_the_ship_is_created_it_is_positioned_at_the_origin() {
-        let expected_position = (0.0, 0.0);
+        let expected_position = (0, 0);
         let ship = Ship::new();
         assert_eq!(ship.position(), expected_position);
     }
@@ -104,12 +121,12 @@ mod tests {
         }
     }
 
-    fn position_from_action(action: &Action) -> (f64, f64) {
+    fn position_from_action(action: &Action) -> (i32, i32) {
         match action {
-            Action::MoveNorth(dy) => (0.0, *dy as f64),
-            Action::MoveSouth(dy) => (0.0, -(*dy as f64)),
-            Action::MoveEast(dx) => (*dx as f64, 0.0),
-            Action::MoveWest(dx) => (-(*dx as f64), 0.0),
+            Action::MoveNorth(dy) => (0, *dy as i32),
+            Action::MoveSouth(dy) => (0, -(*dy as i32)),
+            Action::MoveEast(dx) => (*dx as i32, 0),
+            Action::MoveWest(dx) => (-(*dx as i32), 0),
             _ => panic!("only lateral movements are supported (not rotation or forward)")
         }
     }
@@ -117,7 +134,7 @@ mod tests {
     proptest! {
         #[test]
         fn when_the_action_is_north_the_ship_coordinates_change_by_the_specified_value(dist: u16) {
-            let expected_position = (0.0, dist as f64);
+            let expected_position = (0, dist as i32);
             let mut ship = Ship::new();
             ship.act(Action::MoveNorth(dist));
             prop_assert_eq!(ship.position(), expected_position);
@@ -125,7 +142,7 @@ mod tests {
 
         #[test]
         fn when_the_action_is_south_the_ship_coordinates_change_by_the_specified_value(dist: u16) {
-            let expected_position = (0.0, -(dist as f64));
+            let expected_position = (0, -(dist as i32));
             let mut ship = Ship::new();
             ship.act(Action::MoveSouth(dist));
             prop_assert_eq!(ship.position(), expected_position);
@@ -133,7 +150,7 @@ mod tests {
 
         #[test]
         fn when_the_action_is_east_the_ship_coordinates_change_by_the_specified_value(dist: u16) {
-            let expected_position = (dist as f64, 0.0);
+            let expected_position = (dist as i32, 0);
             let mut ship = Ship::new();
             ship.act(Action::MoveEast(dist));
             prop_assert_eq!(ship.position(), expected_position);
@@ -141,7 +158,7 @@ mod tests {
 
         #[test]
         fn when_the_action_is_west_the_ship_coordinates_change_by_the_specified_value(dist: u16) {
-            let expected_position = (-(dist as f64), 0.0);
+            let expected_position = (-(dist as i32), 0);
             let mut ship = Ship::new();
             ship.act(Action::MoveWest(dist));
             prop_assert_eq!(ship.position(), expected_position);
@@ -204,6 +221,48 @@ mod tests {
             let mut ship = Ship::new();
             ship.act(rotation);
             ship.act(pos);
+            prop_assert_eq!(ship.position(), expected_position);
+        }
+
+        #[test]
+        fn when_the_ship_moves_forward_it_goes_in_the_direction_of_its_rotation(distance: u16, rotation in rotation()) {
+            use nalgebra::{Matrix2, Vector2};
+            let vector = Vector2::new(distance as f64, 0.);
+            let angle = match &rotation {
+                Action::RotateLeft(theta) => (*theta % 360) as f64,
+                Action::RotateRight(theta) => ((360 - (theta % 360)) % 360) as f64,
+                _ => panic!("this shouldn’t happen")
+            }.to_radians();
+            let expected_position = Matrix2::new(
+                angle.cos(), -angle.sin(),
+                angle.sin(), angle.cos()
+            ) * vector;
+            let expected_position = (expected_position[0] as i32, expected_position[1] as i32);
+            let mut ship = Ship::new();
+            ship.act(rotation);
+            ship.act(Action::MoveForward(distance));
+            prop_assert_eq!(ship.position(), expected_position);
+        }
+
+        #[test]
+        fn when_the_ship_moves_forward_it_goes_from_where_it_started(distance: u16, position in lateral_movement(), rotation in rotation()) {
+            let vector = Vector3::new(distance as f64, 0., 1.);
+            let coordinates = position_from_action(&position);
+            let angle = match &rotation {
+                Action::RotateLeft(theta) => (*theta % 360) as f64,
+                Action::RotateRight(theta) => ((360 - (theta % 360)) % 360) as f64,
+                _ => panic!("this shouldn’t happen")
+            }.to_radians();
+            let expected_position = Matrix3::new(
+                angle.cos(), -angle.sin(), coordinates.0 as f64,
+                angle.sin(), angle.cos(), coordinates.1 as f64,
+                0., 0., 1.
+            ) * vector;
+            let expected_position = (expected_position[0] as i32, expected_position[1] as i32);
+            let mut ship = Ship::new();
+            ship.act(rotation);
+            ship.act(position);
+            ship.act(Action::MoveForward(distance));
             prop_assert_eq!(ship.position(), expected_position);
         }
     }

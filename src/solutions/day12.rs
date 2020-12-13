@@ -8,7 +8,11 @@ use ship::{Action, Ship};
 #[derive(Clap)]
 pub struct Solution {
     input: std::path::PathBuf,
-    #[clap(long)]
+    #[clap(
+        long,
+        about = "Interpret movement instructions in the input file as manipulating the waypoint \
+                instead of the ship"
+    )]
     enable_waypoint: bool,
 }
 

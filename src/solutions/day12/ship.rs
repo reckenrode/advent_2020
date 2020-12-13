@@ -6,6 +6,7 @@ pub struct Ship {
     rotation: u16,
     waypoint: (f64, f64),
 }
+
 #[derive(Debug)]
 pub enum Action {
     MoveNorth(u16),

@@ -165,7 +165,10 @@ mod tests {
         }
 
         #[test]
-        fn when_the_ship_moves_it_starts_from_its_current_position(a1 in lateral_movement(), a2 in lateral_movement()) {
+        fn when_the_ship_moves_it_starts_from_its_current_position(
+            a1 in lateral_movement(),
+            a2 in lateral_movement()
+        ) {
             let (a1x, a1y) = position_from_action(&a1);
             let (a2x, a2y) = position_from_action(&a2);
             let expected_position = (a1x + a2x, a1y + a2y);
@@ -192,13 +195,20 @@ mod tests {
         }
 
         #[test]
-        fn when_the_ship_rotates_it_rotates_from_its_current_orientation(fst in rotation(), snd in rotation()) {
+        fn when_the_ship_rotates_it_rotates_from_its_current_orientation(
+            fst in rotation(),
+            snd in rotation()
+        ) {
             let expected_orientation = match (&fst, &snd) {
-                (Action::RotateLeft(theta1), Action::RotateLeft(theta2)) => add_angles(*theta1 as i32, *theta2 as i32),
-                (Action::RotateLeft(theta1), Action::RotateRight(theta2)) => add_angles(*theta1 as i32, -(*theta2 as i32)),
-                (Action::RotateRight(theta1), Action::RotateLeft(theta2)) => add_angles(-(*theta1 as i32), *theta2 as i32),
-                (Action::RotateRight(theta1), Action::RotateRight(theta2)) => add_angles(-(*theta1 as i32), -(*theta2 as i32)),
-                _ => panic!("shut up rust")
+                (Action::RotateLeft(theta1), Action::RotateLeft(theta2)) =>
+                    add_angles(*theta1 as i32, *theta2 as i32),
+                (Action::RotateLeft(theta1), Action::RotateRight(theta2)) =>
+                    add_angles(*theta1 as i32, -(*theta2 as i32)),
+                (Action::RotateRight(theta1), Action::RotateLeft(theta2)) =>
+                    add_angles(-(*theta1 as i32), *theta2 as i32),
+                (Action::RotateRight(theta1), Action::RotateRight(theta2)) =>
+                    add_angles(-(*theta1 as i32), -(*theta2 as i32)),
+                _ => panic!("This shouldn’t happen.")
             };
             let mut ship = Ship::new();
             ship.act(fst);
@@ -207,7 +217,10 @@ mod tests {
         }
 
         #[test]
-        fn when_the_ship_rotates_it_stays_at_its_current_position(pos in lateral_movement(), rotation in rotation()) {
+        fn when_the_ship_rotates_it_stays_at_its_current_position(
+            pos in lateral_movement(),
+            rotation in rotation()
+        ) {
             let expected_position = position_from_action(&pos);
             let mut ship = Ship::new();
             ship.act(pos);
@@ -216,7 +229,10 @@ mod tests {
         }
 
         #[test]
-        fn when_the_ship_is_rotated_it_does_not_affect_lateral_movement(pos in lateral_movement(), rotation in rotation()) {
+        fn when_the_ship_is_rotated_it_does_not_affect_lateral_movement(
+            pos in lateral_movement(),
+            rotation in rotation()
+        ) {
             let expected_position = position_from_action(&pos);
             let mut ship = Ship::new();
             ship.act(rotation);
@@ -225,7 +241,10 @@ mod tests {
         }
 
         #[test]
-        fn when_the_ship_moves_forward_it_goes_in_the_direction_of_its_rotation(distance: u16, rotation in rotation()) {
+        fn when_the_ship_moves_forward_it_goes_in_the_direction_of_its_rotation(
+            distance: u16,
+            rotation in rotation()
+        ) {
             use nalgebra::{Matrix2, Vector2};
             let vector = Vector2::new(distance as f64, 0.);
             let angle = match &rotation {
@@ -245,7 +264,11 @@ mod tests {
         }
 
         #[test]
-        fn when_the_ship_moves_forward_it_goes_from_where_it_started(distance: u16, position in lateral_movement(), rotation in rotation()) {
+        fn when_the_ship_moves_forward_it_goes_from_where_it_started(
+            distance: u16,
+            position in lateral_movement(),
+            rotation in rotation()
+        ) {
             let vector = Vector3::new(distance as f64, 0., 1.);
             let coordinates = position_from_action(&position);
             let angle = match &rotation {

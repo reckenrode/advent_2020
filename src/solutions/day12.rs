@@ -19,6 +19,10 @@ impl Solution {
             .map(|line| Action::parse(line, self.enable_waypoint))
             .collect();
         let mut ship = Ship::new();
+        if self.enable_waypoint {
+            ship.act(Action::MoveWaypointEast(9));
+            ship.act(Action::MoveWaypointNorth(1));
+        }
         for line in lines? {
             ship.act(line);
         }

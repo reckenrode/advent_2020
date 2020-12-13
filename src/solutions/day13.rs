@@ -1,3 +1,4 @@
+mod departure_finder;
 mod multiple_finder;
 
 use anyhow::{

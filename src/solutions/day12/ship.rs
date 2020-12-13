@@ -1,5 +1,6 @@
 pub struct Ship {
     position: (f64, f64),
+    rotation: u16,
 }
 #[derive(Debug)]
 pub enum Action {
@@ -7,24 +8,41 @@ pub enum Action {
     MoveSouth(u16),
     MoveEast(u16),
     MoveWest(u16),
+    RotateLeft(u16),
+    RotateRight(u16),
 }
 
 impl Ship {
     pub fn new() -> Self {
-        Ship { position: (0.0, 0.0) }
+        Ship {
+            position: (0.0, 0.0),
+            rotation: 0
+        }
     }
 
     pub fn act(&mut self, action: Action) {
         action.apply(self)
     }
 
-    pub fn orientation(&self) -> f64 {
-        0.0
+    pub fn orientation(&self) -> u16 {
+        self.rotation
     }
 
     pub fn position(&self) -> (f64, f64) {
         self.position
     }
+
+    fn rotate(&mut self, angle: u16, orientation: Orientation) {
+        let angle = match orientation {
+            Orientation::Right => 360 - (angle % 360),
+            Orientation::Left => angle % 360,
+        };
+        self.rotation = (self.rotation + angle) % 360;
+    }
+}
+
+enum Orientation {
+    Left, Right
 }
 
 impl Action {
@@ -35,6 +53,8 @@ impl Action {
             Self::MoveSouth(dy) => ship.position = (x, y - *dy as f64),
             Self::MoveEast(dx) => ship.position = (x + *dx as f64, y),
             Self::MoveWest(dx) => ship.position = (x - *dx as f64, y),
+            Self::RotateLeft(theta) => ship.rotate(*theta, Orientation::Left),
+            Self::RotateRight(theta) => ship.rotate(*theta, Orientation::Right),
         }
     }
 }
@@ -52,7 +72,7 @@ mod tests {
 
     #[test]
     fn when_the_ship_is_created_it_faces_east() {
-        let expected_orientation = 0.0;
+        let expected_orientation = 0;
         let ship = Ship::new();
         assert_eq!(ship.orientation(), expected_orientation);
     }
@@ -68,12 +88,29 @@ mod tests {
         ]
     }
 
+    fn rotation() -> impl Strategy<Value = Action> {
+        prop_oneof![
+            any::<u16>().prop_map(Action::RotateLeft),
+            any::<u16>().prop_map(Action::RotateRight),
+        ]
+    }
+
+    fn add_angles(theta1: i32, theta2: i32) -> u16 {
+        let result = (theta1 + theta2) % 360;
+        if result < 0 {
+            (result + 360) as u16
+        } else {
+            result as u16
+        }
+    }
+
     fn position_from_action(action: &Action) -> (f64, f64) {
         match action {
             Action::MoveNorth(dy) => (0.0, *dy as f64),
             Action::MoveSouth(dy) => (0.0, -(*dy as f64)),
             Action::MoveEast(dx) => (*dx as f64, 0.0),
             Action::MoveWest(dx) => (-(*dx as f64), 0.0),
+            _ => panic!("only lateral movements are supported (not rotation or forward)")
         }
     }
 
@@ -118,6 +155,55 @@ mod tests {
             let mut ship = Ship::new();
             ship.act(a1);
             ship.act(a2);
+            prop_assert_eq!(ship.position(), expected_position);
+        }
+
+        #[test]
+        fn when_the_ship_rotates_left_its_orientation_reflects_the_change(rotation: u16) {
+            let expected_orientation = rotation % 360;
+            let mut ship = Ship::new();
+            ship.act(Action::RotateLeft(rotation));
+            prop_assert_eq!(ship.orientation(), expected_orientation)
+        }
+
+        #[test]
+        fn when_the_ship_rotates_right_its_orientation_reflects_the_change(rotation: u16) {
+            let expected_orientation = (360 - (rotation % 360)) % 360;
+            let mut ship = Ship::new();
+            ship.act(Action::RotateRight(rotation));
+            prop_assert_eq!(ship.orientation(), expected_orientation)
+        }
+
+        #[test]
+        fn when_the_ship_rotates_it_rotates_from_its_current_orientation(fst in rotation(), snd in rotation()) {
+            let expected_orientation = match (&fst, &snd) {
+                (Action::RotateLeft(theta1), Action::RotateLeft(theta2)) => add_angles(*theta1 as i32, *theta2 as i32),
+                (Action::RotateLeft(theta1), Action::RotateRight(theta2)) => add_angles(*theta1 as i32, -(*theta2 as i32)),
+                (Action::RotateRight(theta1), Action::RotateLeft(theta2)) => add_angles(-(*theta1 as i32), *theta2 as i32),
+                (Action::RotateRight(theta1), Action::RotateRight(theta2)) => add_angles(-(*theta1 as i32), -(*theta2 as i32)),
+                _ => panic!("shut up rust")
+            };
+            let mut ship = Ship::new();
+            ship.act(fst);
+            ship.act(snd);
+            prop_assert_eq!(ship.orientation(), expected_orientation)
+        }
+
+        #[test]
+        fn when_the_ship_rotates_it_stays_at_its_current_position(pos in lateral_movement(), rotation in rotation()) {
+            let expected_position = position_from_action(&pos);
+            let mut ship = Ship::new();
+            ship.act(pos);
+            ship.act(rotation);
+            prop_assert_eq!(ship.position(), expected_position);
+        }
+
+        #[test]
+        fn when_the_ship_is_rotated_it_does_not_affect_lateral_movement(pos in lateral_movement(), rotation in rotation()) {
+            let expected_position = position_from_action(&pos);
+            let mut ship = Ship::new();
+            ship.act(rotation);
+            ship.act(pos);
             prop_assert_eq!(ship.position(), expected_position);
         }
     }

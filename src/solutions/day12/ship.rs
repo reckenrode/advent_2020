@@ -59,10 +59,10 @@ impl Ship {
     fn rotate_waypoint(&mut self, angle: u16, orientation: Orientation) {
         use nalgebra::{Matrix2, Vector2};
         let angle = match orientation {
-            Orientation::Right => 360 - (angle % 360),
-            Orientation::Left => angle % 360,
+            Orientation::Right => -(angle as f64),
+            Orientation::Left => angle as f64,
         };
-        let r = (((self.rotation + angle) % 360) as f64).to_radians();
+        let r = angle.to_radians();
         let m = Matrix2::new(
             r.cos(), -r.sin(),
             r.sin(),  r.cos()

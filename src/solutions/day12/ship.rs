@@ -1,3 +1,4 @@
+use anyhow::{anyhow, Result};
 use nalgebra::{Matrix3, Vector3};
 
 pub struct Ship {
@@ -72,6 +73,21 @@ impl Action {
             Self::RotateLeft(theta) => ship.rotate(*theta, Orientation::Left),
             Self::RotateRight(theta) => ship.rotate(*theta, Orientation::Right),
             Self::MoveForward(distance) => ship.travel(*distance),
+        }
+    }
+
+    pub fn parse(s: impl AsRef<str>) -> Result<Action> {
+        let s = s.as_ref();
+        let num = s[1..].parse::<u16>()?;
+        match &s[0..0] {
+            "N" => Ok(Self::MoveNorth(num)),
+            "S" => Ok(Self::MoveSouth(num)),
+            "E" => Ok(Self::MoveEast(num)),
+            "W" => Ok(Self::MoveWest(num)),
+            "L" => Ok(Self::RotateLeft(num)),
+            "R" => Ok(Self::RotateRight(num)),
+            "F" => Ok(Self::MoveForward(num)),
+            _ => Err(anyhow!("error parsing actions: unexpected action type"))
         }
     }
 }

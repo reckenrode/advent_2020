@@ -18,7 +18,7 @@ impl Solution {
         let lines: Result<Vec<Action>, anyhow::Error> = data.lines()
             .map(|line| Action::parse(line, self.enable_waypoint))
             .collect();
-        let mut ship = Ship::new(self.enable_waypoint);
+        let mut ship = Ship::new();
         for line in lines? {
             ship.act(line);
         }

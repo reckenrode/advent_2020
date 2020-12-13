@@ -24,15 +24,11 @@ pub enum Action {
 }
 
 impl Ship {
-    pub fn new(enable_waypoint: bool) -> Self {
+    pub fn new() -> Self {
         Ship {
             position: (0, 0),
             rotation: 0,
-            waypoint: if enable_waypoint {
-                (10., 1.)
-            } else {
-                (1., 0.)
-            },
+            waypoint: (1., 0.),
         }
     }
 
@@ -153,14 +149,14 @@ mod tests {
     #[test]
     fn when_the_ship_is_created_it_is_positioned_at_the_origin() {
         let expected_position = (0, 0);
-        let ship = Ship::new(false);
+        let ship = Ship::new();
         assert_eq!(ship.position(), expected_position);
     }
 
     #[test]
     fn when_the_ship_is_created_it_faces_east() {
         let expected_orientation = 0;
-        let ship = Ship::new(false);
+        let ship = Ship::new();
         assert_eq!(ship.orientation(), expected_orientation);
     }
 
@@ -205,7 +201,7 @@ mod tests {
         #[test]
         fn when_the_action_is_north_the_ship_coordinates_change_by_the_specified_value(dist: u16) {
             let expected_position = (0, dist as i32);
-            let mut ship = Ship::new(false);
+            let mut ship = Ship::new();
             ship.act(Action::MoveNorth(dist));
             prop_assert_eq!(ship.position(), expected_position);
         }
@@ -213,7 +209,7 @@ mod tests {
         #[test]
         fn when_the_action_is_south_the_ship_coordinates_change_by_the_specified_value(dist: u16) {
             let expected_position = (0, -(dist as i32));
-            let mut ship = Ship::new(false);
+            let mut ship = Ship::new();
             ship.act(Action::MoveSouth(dist));
             prop_assert_eq!(ship.position(), expected_position);
         }
@@ -221,7 +217,7 @@ mod tests {
         #[test]
         fn when_the_action_is_east_the_ship_coordinates_change_by_the_specified_value(dist: u16) {
             let expected_position = (dist as i32, 0);
-            let mut ship = Ship::new(false);
+            let mut ship = Ship::new();
             ship.act(Action::MoveEast(dist));
             prop_assert_eq!(ship.position(), expected_position);
         }
@@ -229,7 +225,7 @@ mod tests {
         #[test]
         fn when_the_action_is_west_the_ship_coordinates_change_by_the_specified_value(dist: u16) {
             let expected_position = (-(dist as i32), 0);
-            let mut ship = Ship::new(false);
+            let mut ship = Ship::new();
             ship.act(Action::MoveWest(dist));
             prop_assert_eq!(ship.position(), expected_position);
         }
@@ -242,7 +238,7 @@ mod tests {
             let (a1x, a1y) = position_from_action(&a1);
             let (a2x, a2y) = position_from_action(&a2);
             let expected_position = (a1x + a2x, a1y + a2y);
-            let mut ship = Ship::new(false);
+            let mut ship = Ship::new();
             ship.act(a1);
             ship.act(a2);
             prop_assert_eq!(ship.position(), expected_position);
@@ -251,7 +247,7 @@ mod tests {
         #[test]
         fn when_the_ship_rotates_left_its_orientation_reflects_the_change(rotation: u16) {
             let expected_orientation = rotation % 360;
-            let mut ship = Ship::new(false);
+            let mut ship = Ship::new();
             ship.act(Action::RotateLeft(rotation));
             prop_assert_eq!(ship.orientation(), expected_orientation)
         }
@@ -259,7 +255,7 @@ mod tests {
         #[test]
         fn when_the_ship_rotates_right_its_orientation_reflects_the_change(rotation: u16) {
             let expected_orientation = (360 - (rotation % 360)) % 360;
-            let mut ship = Ship::new(false);
+            let mut ship = Ship::new();
             ship.act(Action::RotateRight(rotation));
             prop_assert_eq!(ship.orientation(), expected_orientation)
         }
@@ -280,7 +276,7 @@ mod tests {
                     add_angles(-(*theta1 as i32), -(*theta2 as i32)),
                 _ => panic!("This shouldn’t happen.")
             };
-            let mut ship = Ship::new(false);
+            let mut ship = Ship::new();
             ship.act(fst);
             ship.act(snd);
             prop_assert_eq!(ship.orientation(), expected_orientation)
@@ -292,7 +288,7 @@ mod tests {
             rotation in rotation()
         ) {
             let expected_position = position_from_action(&pos);
-            let mut ship = Ship::new(false);
+            let mut ship = Ship::new();
             ship.act(pos);
             ship.act(rotation);
             prop_assert_eq!(ship.position(), expected_position);
@@ -304,7 +300,7 @@ mod tests {
             rotation in rotation()
         ) {
             let expected_position = position_from_action(&pos);
-            let mut ship = Ship::new(false);
+            let mut ship = Ship::new();
             ship.act(rotation);
             ship.act(pos);
             prop_assert_eq!(ship.position(), expected_position);
@@ -325,7 +321,7 @@ mod tests {
                 (d * angle.cos()).round() as i32,
                 (d * angle.sin()).round() as i32,
             );
-            let mut ship = Ship::new(false);
+            let mut ship = Ship::new();
             ship.act(rotation);
             ship.act(Action::MoveForward(distance));
             prop_assert_eq!(ship.position(), expected_position);
@@ -348,7 +344,7 @@ mod tests {
                 (coordinates.0 as f64 + d * angle.cos()).round() as i32,
                 (coordinates.1 as f64 + d * angle.sin()).round() as i32,
             );
-            let mut ship = Ship::new(false);
+            let mut ship = Ship::new();
             ship.act(rotation);
             ship.act(position);
             ship.act(Action::MoveForward(distance));

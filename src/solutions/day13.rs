@@ -39,7 +39,7 @@ impl Solution {
         Ok(())
     }
 
-    fn parse(file: impl BufRead) -> Result<(u32, Vec<u32>)> {
+    fn parse(file: impl BufRead) -> Result<(u64, Vec<u64>)> {
         let mut lines = file.lines();
         let my_time = lines.next()
             .ok_or(anyhow!("input missing first line"))??

@@ -9,6 +9,7 @@ mod day13;
 pub enum Solution {
     Day11(day11::Solution),
     Day12(day12::Solution),
+    Day13(day13::Solution),
 }
 
 impl Solution {
@@ -16,6 +17,7 @@ impl Solution {
         match self {
             Solution::Day11(solution) => solution.run(),
             Solution::Day12(solution) => solution.run(),
+            Solution::Day13(solution) => solution.run(),
         }
     }
 }

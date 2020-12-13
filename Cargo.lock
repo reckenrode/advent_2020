@@ -9,6 +9,7 @@ dependencies = [
  "nalgebra",
  "num",
  "proptest",
+ "rand",
 ]
 
 [[package]]

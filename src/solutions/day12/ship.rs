@@ -54,7 +54,7 @@ impl Ship {
         );
         let position = Vector3::new(distance as f64, 0., 1.);
         let new_position = m * position;
-        self.position = (new_position[0] as i32, new_position[1] as i32)
+        self.position = (new_position[0].round() as i32, new_position[1].round() as i32)
     }
 }
 
@@ -79,7 +79,7 @@ impl Action {
     pub fn parse(s: impl AsRef<str>) -> Result<Action> {
         let s = s.as_ref();
         let num = s[1..].parse::<u16>()?;
-        match &s[0..0] {
+        match &s[0..1] {
             "N" => Ok(Self::MoveNorth(num)),
             "S" => Ok(Self::MoveSouth(num)),
             "E" => Ok(Self::MoveEast(num)),
@@ -261,18 +261,16 @@ mod tests {
             distance: u16,
             rotation in rotation()
         ) {
-            use nalgebra::{Matrix2, Vector2};
-            let vector = Vector2::new(distance as f64, 0.);
             let angle = match &rotation {
                 Action::RotateLeft(theta) => (*theta % 360) as f64,
                 Action::RotateRight(theta) => ((360 - (theta % 360)) % 360) as f64,
                 _ => panic!("this shouldn’t happen")
             }.to_radians();
-            let expected_position = Matrix2::new(
-                angle.cos(), -angle.sin(),
-                angle.sin(), angle.cos()
-            ) * vector;
-            let expected_position = (expected_position[0] as i32, expected_position[1] as i32);
+            let d = distance as f64;
+            let expected_position = (
+                (d * angle.cos()).round() as i32,
+                (d * angle.sin()).round() as i32,
+            );
             let mut ship = Ship::new();
             ship.act(rotation);
             ship.act(Action::MoveForward(distance));
@@ -285,19 +283,17 @@ mod tests {
             position in lateral_movement(),
             rotation in rotation()
         ) {
-            let vector = Vector3::new(distance as f64, 0., 1.);
             let coordinates = position_from_action(&position);
             let angle = match &rotation {
                 Action::RotateLeft(theta) => (*theta % 360) as f64,
                 Action::RotateRight(theta) => ((360 - (theta % 360)) % 360) as f64,
                 _ => panic!("this shouldn’t happen")
             }.to_radians();
-            let expected_position = Matrix3::new(
-                angle.cos(), -angle.sin(), coordinates.0 as f64,
-                angle.sin(), angle.cos(), coordinates.1 as f64,
-                0., 0., 1.
-            ) * vector;
-            let expected_position = (expected_position[0] as i32, expected_position[1] as i32);
+            let d = distance as f64;
+            let expected_position = (
+                (coordinates.0 as f64 + d * angle.cos()).round() as i32,
+                (coordinates.1 as f64 + d * angle.sin()).round() as i32,
+            );
             let mut ship = Ship::new();
             ship.act(rotation);
             ship.act(position);

@@ -18,6 +18,12 @@ pub enum Bit {
 }
 
 impl Mask {
+    pub fn new() -> Mask {
+        Mask {
+            raw_mask: [Bit::any; 36]
+        }
+    }
+
     pub fn parse(input: impl AsRef<str>) -> Result<Mask> {
         let input = input.as_ref();
         if input.len() != MASK_LEN {
@@ -68,6 +74,12 @@ mod tests {
     fn decodes_a_mask_successfully() -> Result<()> {
         let expected_mask = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X";
         Ok(assert_eq!(Mask::parse(expected_mask)?.to_string(), expected_mask))
+    }
+
+    #[test]
+    fn creates_a_default_mask_with_all_any_bits() {
+        let expected_mask = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+        assert_eq!(Mask::new().to_string(), expected_mask)
     }
 
     #[test]

@@ -5,6 +5,7 @@ mod value_decoder;
 
 use address_decoder::{AddressDecoder, NullDecoder};
 use anyhow::{anyhow, Result};
+use mask::Mask;
 use program_statement::ProgramStatement;
 use std::{
     collections::HashMap,
@@ -18,7 +19,7 @@ const ONE_BIT: u8 = '1' as u8;
 const ANY_BIT: u8 = 'X' as u8;
 
 pub struct Comporter {
-    mask: String,
+    mask: Mask,
     memory: HashMap<usize, u64>,
     address_decoder: Box<dyn AddressDecoder>,
     value_decoder: Box<dyn ValueDecoder>,
@@ -27,7 +28,7 @@ pub struct Comporter {
 impl Comporter {
     pub fn new() -> Comporter {
         Comporter {
-            mask: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX".to_string(),
+            mask: Mask::new(),
             memory: HashMap::new(),
             address_decoder: Box::new(NullDecoder::new()),
             value_decoder: Box::new(MaskedDecoder::new()),
@@ -47,12 +48,12 @@ impl Comporter {
     }
 
     pub fn set_mask(&mut self, mask: impl AsRef<str>) -> Result<()> {
-        self.mask = mask.as_ref().to_string();
+        self.mask = Mask::parse(mask)?;
         Ok(())
     }
 
     pub fn set_memory(&mut self, index: usize, value: u64) {
-        let mask = &self.mask;
+        let mask = &self.mask.to_string();
         let memory_value = self.value_decoder.decode(value, mask);
         for address in self.address_decoder.decode(index, mask) {
             *self.memory.entry(address).or_insert(memory_value) = memory_value;

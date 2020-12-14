@@ -6,7 +6,7 @@ const ONE_BIT: u8 = '1' as u8;
 const ANY_BIT: u8 = 'X' as u8;
 
 #[derive(Debug)]
-struct Mask {
+pub struct Mask {
     raw_mask: [Bit; 36],
 }
 

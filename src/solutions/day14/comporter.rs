@@ -6,7 +6,10 @@ use nom::{
     sequence::{delimited, pair, preceded, terminated},
     Finish,
 };
-use std::{collections::HashMap, error::Error};
+use std::{
+    collections::HashMap,
+    io::{BufRead, BufReader, Read},
+};
 
 const MASK_LEN: usize = 36;
 const ZERO_BIT: u8 = '0' as u8;
@@ -28,14 +31,16 @@ impl Comporter {
         }
     }
 
-    pub fn exec<'a>(&mut self, src: &'a str) -> Result<(), Box<dyn Error + 'a>> {
-        let mut lines = src.lines();
+    pub fn exec<'a>(&mut self, src: impl Read) -> Result<()> {
+        let reader = BufReader::new(src);
+        let mut lines = reader.lines();
         let header = lines
             .next()
-            .ok_or(anyhow!("expected mask but found something else"))?;
-        self.set_mask(Self::parse_header(header)?)?;
+            .ok_or(anyhow!("expected mask but found something else"))??;
+        let mask = Self::parse_header(header.as_ref())?;
+        self.set_mask(mask)?;
         for line in lines {
-            let (address, value) = Self::parse_line(line)?;
+            let (address, value) = Self::parse_line(line?)?;
             self.set_memory(address, value);
         }
         Ok(())
@@ -70,35 +75,43 @@ impl Comporter {
         self.memory.values().sum()
     }
 
-    fn parse_header<'a>(line: &'a str) -> Result<&'a str, nom::error::Error<&'a str>> {
-        let mask_def = tag("mask");
-        let mask_content = take_while1(|s| s == 'X' || s == '1' || s == '0');
-        let mut mask_statement = terminated(
-            preceded(
-                mask_def,
-                preceded(delimited(space0, char('='), space0), mask_content),
-            ),
-            eof,
-        );
-        let (_, result) = mask_statement(line).finish()?;
+    fn parse_header<'a>(line: &'a str) -> Result<&'a str> {
+        fn mask_statement<'a>() -> impl FnMut(&'a str) -> nom::IResult<&'a str, &'a str> {
+            let mask_def = tag("mask");
+            let mask_content = take_while1(|s| s == 'X' || s == '1' || s == '0');
+            terminated(
+                preceded(
+                    mask_def,
+                    preceded(delimited(space0, char('='), space0), mask_content),
+                ),
+                eof,
+            )
+        };
+        let (_, result) = mask_statement()(line)
+            .finish()
+            .map_err(|e| anyhow!("{}", e))?;
         Ok(result)
     }
 
-    fn parse_line<'a>(line: &'a str) -> Result<(usize, u64), nom::error::Error<&'a str>> {
-        let mem_ref = delimited(
-            char('['),
-            map_res(digit1, |s: &str| s.parse::<usize>()),
-            char(']'),
-        );
-        let mem_contents = map_res(digit1, |s: &str| s.parse::<u64>());
-        let mut mem_statement = terminated(
-            pair(
-                preceded(tag("mem"), mem_ref),
-                preceded(delimited(space0, char('='), space0), mem_contents),
-            ),
-            eof,
-        );
-        let (_, result) = mem_statement(line).finish()?;
+    fn parse_line<'a>(line: impl AsRef<str>) -> Result<(usize, u64)> {
+        fn mem_statement<'a>() -> impl FnMut(&'a str) -> nom::IResult<&'a str, (usize, u64)> {
+            let mem_ref = delimited(
+                char('['),
+                map_res(digit1, |s: &str| s.parse::<usize>()),
+                char(']'),
+            );
+            let mem_contents = map_res(digit1, |s: &str| s.parse::<u64>());
+            terminated(
+                pair(
+                    preceded(tag("mem"), mem_ref),
+                    preceded(delimited(space0, char('='), space0), mem_contents),
+                ),
+                eof,
+            )
+        };
+        let (_, result) = mem_statement()(line.as_ref())
+            .finish()
+            .map_err(|e| anyhow!("{}", e))?;
         Ok(result)
     }
 
@@ -116,6 +129,7 @@ impl Comporter {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::io::Cursor;
 
     #[test]
     fn when_it_writes_a_value_it_applies_the_mask_to_the_bits() -> Result<()> {
@@ -172,7 +186,7 @@ mod tests {
     }
 
     #[test]
-    fn it_loads_the_program_and_runs_it() -> Result<(), Box<dyn Error>> {
+    fn it_loads_the_program_and_runs_it() -> Result<()> {
         let program = "\
             mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X\n\
             mem[8] = 11\n\
@@ -182,7 +196,7 @@ mod tests {
         let expected_sum = 165;
 
         let mut compy = Comporter::new();
-        compy.exec(program)?;
+        compy.exec(Cursor::new(program))?;
 
         Ok(assert_eq!(compy.sum_of_memory(), expected_sum))
     }

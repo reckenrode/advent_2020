@@ -1,6 +1,8 @@
+mod address_decoder;
 mod program_statement;
 
 use anyhow::{anyhow, Result};
+use address_decoder::{AddressDecoder, NullDecoder};
 use program_statement::ProgramStatement;
 use std::{
     collections::HashMap,
@@ -16,6 +18,7 @@ pub struct Comporter {
     and_mask: u64,
     or_mask: u64,
     memory: HashMap<usize, u64>,
+    address_decoder: Box<dyn AddressDecoder>,
 }
 
 impl Comporter {
@@ -24,6 +27,7 @@ impl Comporter {
             and_mask: u64::MAX,
             or_mask: 0,
             memory: HashMap::new(),
+            address_decoder: Box::new(NullDecoder::new()),
         }
     }
 
@@ -57,7 +61,9 @@ impl Comporter {
 
     pub fn set_memory(&mut self, index: usize, value: u64) {
         let memory_value = value & self.and_mask | self.or_mask;
-        *self.memory.entry(index).or_insert(memory_value) = memory_value;
+        for address in self.address_decoder.decode(index, "") {
+            *self.memory.entry(address).or_insert(memory_value) = memory_value;
+        }
     }
 
     pub fn sum_of_memory(&self) -> u64 {

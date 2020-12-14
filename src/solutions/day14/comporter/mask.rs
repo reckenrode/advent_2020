@@ -10,7 +10,7 @@ pub struct Mask {
     raw_mask: [Bit; 36],
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Bit {
     any,
     one,
@@ -22,6 +22,10 @@ impl Mask {
         Mask {
             raw_mask: [Bit::any; 36]
         }
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &Bit> {
+        self.raw_mask.iter()
     }
 
     pub fn parse(input: impl AsRef<str>) -> Result<Mask> {
@@ -104,5 +108,50 @@ mod tests {
         let mask = "XXXXXXXXXXXXXXXXXXXXXX💩XXXX1XXXX0";
         let result = Mask::parse(mask).unwrap_err();
         assert_eq!(result.to_string(), expected_result.to_string())
+    }
+
+    #[test]
+    fn can_iterate_over_its_bits() -> Result<()> {
+        let expected_result = vec![
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::one,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::zero,
+            Bit::any,
+        ];
+        let mask = Mask::parse("XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X")?;
+        let result: Vec<Bit> = mask.iter().copied().collect();
+        Ok(assert_eq!(result, expected_result))
     }
 }

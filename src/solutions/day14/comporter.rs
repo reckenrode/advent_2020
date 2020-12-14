@@ -61,16 +61,6 @@ impl Comporter {
     pub fn sum_of_memory(&self) -> u64 {
         self.memory.values().sum()
     }
-
-    fn parse_masks(mask: &str) -> Result<(u64, u64)> {
-        mask.bytes()
-            .try_fold((0, 0), |(and_mask, or_mask), bit| match bit {
-                ANY_BIT => Ok((and_mask << 1 | 1, or_mask << 1)),
-                ONE_BIT => Ok((and_mask << 1 | 1, or_mask << 1 | 1)),
-                ZERO_BIT => Ok((and_mask << 1, or_mask << 1)),
-                _ => Err(anyhow!("invalid character encountered in mask")),
-            })
-    }
 }
 
 #[cfg(test)]

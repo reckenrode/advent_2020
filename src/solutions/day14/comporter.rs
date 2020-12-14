@@ -4,7 +4,7 @@ mod program_statement;
 mod value_decoder;
 
 use address_decoder::{AddressDecoder, NullDecoder};
-use anyhow::{anyhow, Result};
+use anyhow::Result;
 use mask::Mask;
 use program_statement::ProgramStatement;
 use std::{

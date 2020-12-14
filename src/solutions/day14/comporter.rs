@@ -1,8 +1,9 @@
 use anyhow::{anyhow, Result};
 use nom::{
+    branch::alt,
     bytes::complete::{tag, take_while1},
     character::complete::{char, digit1, space0},
-    combinator::{eof, map_res},
+    combinator::{eof, map, map_res},
     sequence::{delimited, pair, preceded, terminated},
     Finish,
 };
@@ -33,15 +34,12 @@ impl Comporter {
 
     pub fn exec<'a>(&mut self, src: impl Read) -> Result<()> {
         let reader = BufReader::new(src);
-        let mut lines = reader.lines();
-        let header = lines
-            .next()
-            .ok_or(anyhow!("expected mask but found something else"))??;
-        let mask = Self::parse_header(header.as_ref())?;
-        self.set_mask(mask)?;
+        let lines = reader.lines();
         for line in lines {
-            let (address, value) = Self::parse_line(line?)?;
-            self.set_memory(address, value);
+            match ProgramStatement::parse(line?.as_ref())? {
+                ProgramStatement::Instruction(address, value) => self.set_memory(address, value),
+                ProgramStatement::Mask(mask) => self.set_mask(mask)?,
+            }
         }
         Ok(())
     }

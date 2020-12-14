@@ -12,8 +12,6 @@ anyhow = "1.0"
 clap = "3.0.0-beta.2"
 nalgebra = "0.23.1"
 num = "0.3.1"
-rand = "0.7.3"
-is_sorted = "0.1.1"
 
 [dev-dependencies]
 proptest = "0.10.1"

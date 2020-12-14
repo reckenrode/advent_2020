@@ -5,7 +5,7 @@ pub fn earliest_departure(buses: &[u64], offsets: &[usize]) -> Option<u64> {
     if buses.len() == offsets.len() && buses.len() > 0 {
         let mut result = buses[0];
         let mut increment = buses[0];
-        for (bus, offset) in buses.iter().skip(1).zip(offsets.iter().skip(1)) {
+        for (bus, offset) in buses.iter().zip(offsets.iter()).skip(1) {
             while (result + *offset as u64) % bus != 0 {
                 result += increment;
             }

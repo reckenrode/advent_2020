@@ -1,5 +1,6 @@
 mod address_decoder;
 mod program_statement;
+mod value_decoder;
 
 use anyhow::{anyhow, Result};
 use address_decoder::{AddressDecoder, NullDecoder};

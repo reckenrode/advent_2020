@@ -20,7 +20,7 @@ pub enum Bit {
 impl Mask {
     pub fn new() -> Mask {
         Mask {
-            raw_mask: [Bit::any; 36]
+            raw_mask: [Bit::any; 36],
         }
     }
 
@@ -77,7 +77,10 @@ mod tests {
     #[test]
     fn decodes_a_mask_successfully() -> Result<()> {
         let expected_mask = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X";
-        Ok(assert_eq!(Mask::parse(expected_mask)?.to_string(), expected_mask))
+        Ok(assert_eq!(
+            Mask::parse(expected_mask)?.to_string(),
+            expected_mask
+        ))
     }
 
     #[test]

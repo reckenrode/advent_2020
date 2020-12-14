@@ -1,7 +1,4 @@
-use super::{
-    AddressDecoder,
-    super::mask::Mask,
-};
+use super::{super::mask::Mask, AddressDecoder};
 
 pub struct NullDecoder {}
 

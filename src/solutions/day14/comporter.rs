@@ -73,46 +73,6 @@ impl Comporter {
         self.memory.values().sum()
     }
 
-    fn parse_header<'a>(line: &'a str) -> Result<&'a str> {
-        fn mask_statement<'a>() -> impl FnMut(&'a str) -> nom::IResult<&'a str, &'a str> {
-            let mask_def = tag("mask");
-            let mask_content = take_while1(|s| s == 'X' || s == '1' || s == '0');
-            terminated(
-                preceded(
-                    mask_def,
-                    preceded(delimited(space0, char('='), space0), mask_content),
-                ),
-                eof,
-            )
-        };
-        let (_, result) = mask_statement()(line)
-            .finish()
-            .map_err(|e| anyhow!("{}", e))?;
-        Ok(result)
-    }
-
-    fn parse_line<'a>(line: impl AsRef<str>) -> Result<(usize, u64)> {
-        fn mem_statement<'a>() -> impl FnMut(&'a str) -> nom::IResult<&'a str, (usize, u64)> {
-            let mem_ref = delimited(
-                char('['),
-                map_res(digit1, |s: &str| s.parse::<usize>()),
-                char(']'),
-            );
-            let mem_contents = map_res(digit1, |s: &str| s.parse::<u64>());
-            terminated(
-                pair(
-                    preceded(tag("mem"), mem_ref),
-                    preceded(delimited(space0, char('='), space0), mem_contents),
-                ),
-                eof,
-            )
-        };
-        let (_, result) = mem_statement()(line.as_ref())
-            .finish()
-            .map_err(|e| anyhow!("{}", e))?;
-        Ok(result)
-    }
-
     fn parse_masks(mask: &str) -> Result<(u64, u64)> {
         mask.bytes()
             .try_fold((0, 0), |(and_mask, or_mask), bit| match bit {

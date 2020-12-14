@@ -202,4 +202,21 @@ mod tests {
 
         Ok(assert_eq!(compy.sum_of_memory(), expected_sum))
     }
+
+    #[test]
+    fn it_supports_changing_masks_in_the_program() -> Result<()> {
+        let program = "\
+            mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X\n\
+            mem[8] = 11\n\
+            mem[7] = 101\n\
+            mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX01\n\
+            mem[8] = 0";
+
+        let expected_sum = 166;
+
+        let mut compy = Comporter::new();
+        compy.exec(Cursor::new(program))?;
+
+        Ok(assert_eq!(compy.sum_of_memory(), expected_sum))
+    }
 }

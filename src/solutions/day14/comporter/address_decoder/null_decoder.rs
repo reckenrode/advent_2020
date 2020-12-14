@@ -1,4 +1,7 @@
-use super::AddressDecoder;
+use super::{
+    AddressDecoder,
+    super::mask::Mask,
+};
 
 pub struct NullDecoder {}
 
@@ -9,7 +12,7 @@ impl NullDecoder {
 }
 
 impl AddressDecoder for NullDecoder {
-    fn decode(&self, target: usize, _mask: &str) -> Vec<usize> {
+    fn decode(&self, target: usize, _mask: &Mask) -> Vec<usize> {
         vec![target]
     }
 }
@@ -23,9 +26,9 @@ mod tests {
         #[test]
         fn passes_through_address_unchanged(address: usize) {
             let expected_address = vec![ address ];
-            let mask = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX";
+            let mask = Mask::new();
             let decoder = NullDecoder::new();
-            prop_assert_eq!(decoder.decode(address, mask), expected_address)
+            prop_assert_eq!(decoder.decode(address, &mask), expected_address)
         }
     }
 }

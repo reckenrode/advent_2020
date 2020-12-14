@@ -24,7 +24,11 @@ impl Comporter {
     pub fn set_mask(&mut self, mask: impl AsRef<str>) -> Result<()> {
         let mask = mask.as_ref();
         if mask.len() != MASK_LEN {
-            Err(anyhow!("mask length is invalid ({} not {})", mask.len(), MASK_LEN))
+            Err(anyhow!(
+                "mask length is invalid ({} not {})",
+                mask.len(),
+                MASK_LEN,
+            ))
         } else {
             let (and_mask, or_mask) = Self::parse_masks(mask)?;
             self.and_mask = and_mask;
@@ -48,13 +52,11 @@ impl Comporter {
 
     fn parse_masks(mask: &str) -> Result<(u64, u64)> {
         mask.bytes()
-            .try_fold((0, 0), |(and_mask, or_mask), bit| {
-                match bit {
-                    ANY_BIT => Ok((and_mask << 1 | 1, or_mask << 1)),
-                    ONE_BIT => Ok((and_mask << 1 | 1, or_mask << 1 | 1)),
-                    ZERO_BIT => Ok((and_mask << 1, or_mask << 1)),
-                    _ => Err(anyhow!("invalid character encountered in mask")),
-                }
+            .try_fold((0, 0), |(and_mask, or_mask), bit| match bit {
+                ANY_BIT => Ok((and_mask << 1 | 1, or_mask << 1)),
+                ONE_BIT => Ok((and_mask << 1 | 1, or_mask << 1 | 1)),
+                ZERO_BIT => Ok((and_mask << 1, or_mask << 1)),
+                _ => Err(anyhow!("invalid character encountered in mask")),
             })
     }
 }
@@ -62,6 +64,7 @@ impl Comporter {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     #[test]
     fn when_it_writes_a_value_it_applies_the_mask_to_the_bits() -> Result<()> {
         let expected_result = 0b000000000000000000000000000001001001;

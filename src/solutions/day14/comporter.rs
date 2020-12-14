@@ -1,5 +1,13 @@
 use anyhow::{anyhow, Result};
-use std::collections::HashMap;
+use nom::{
+    bytes::complete::{tag, take_while1},
+    character::complete::{char, digit1, space0},
+    combinator::{eof, map_res},
+    sequence::terminated,
+    sequence::{delimited, pair, preceded},
+    Finish,
+};
+use std::{collections::HashMap, error::Error};
 
 const MASK_LEN: usize = 36;
 const ZERO_BIT: u8 = '0' as u8;
@@ -19,6 +27,19 @@ impl Comporter {
             or_mask: 0,
             memory: HashMap::new(),
         }
+    }
+
+    pub fn exec<'a>(&mut self, src: &'a str) -> Result<(), Box<dyn Error + 'a>> {
+        let mut lines = src.lines();
+        let header = lines
+            .next()
+            .ok_or(anyhow!("expected mask but found something else"))?;
+        self.set_mask(Self::parse_header(header)?)?;
+        for line in lines {
+            let (address, value) = Self::parse_line(line)?;
+            self.set_memory(address, value);
+        }
+        Ok(())
     }
 
     pub fn set_mask(&mut self, mask: impl AsRef<str>) -> Result<()> {
@@ -48,6 +69,38 @@ impl Comporter {
 
     pub fn sum_of_memory(&self) -> u64 {
         self.memory.values().sum()
+    }
+
+    fn parse_header<'a>(line: &'a str) -> Result<&'a str, nom::error::Error<&'a str>> {
+        let mask_def = tag("mask");
+        let mask_content = take_while1(|s| s == 'X' || s == '1' || s == '0');
+        let mut mask_statement = terminated(
+            preceded(
+                mask_def,
+                preceded(delimited(space0, char('='), space0), mask_content),
+            ),
+            eof,
+        );
+        let (_, result) = mask_statement(line).finish()?;
+        Ok(result)
+    }
+
+    fn parse_line<'a>(line: &'a str) -> Result<(usize, u64), nom::error::Error<&'a str>> {
+        let mem_ref = delimited(
+            char('['),
+            map_res(digit1, |s: &str| s.parse::<usize>()),
+            char(']'),
+        );
+        let mem_contents = map_res(digit1, |s: &str| s.parse::<u64>());
+        let mut mem_statement = terminated(
+            pair(
+                preceded(tag("mem"), mem_ref),
+                preceded(delimited(space0, char('='), space0), mem_contents),
+            ),
+            eof,
+        );
+        let (_, result) = mem_statement(line).finish()?;
+        Ok(result)
     }
 
     fn parse_masks(mask: &str) -> Result<(u64, u64)> {
@@ -115,6 +168,22 @@ mod tests {
         for (address, value) in program.iter() {
             compy.set_memory(*address, *value);
         }
+
+        Ok(assert_eq!(compy.sum_of_memory(), expected_sum))
+    }
+
+    #[test]
+    fn it_loads_the_program_and_runs_it() -> Result<(), Box<dyn Error>> {
+        let program = "\
+            mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X\n\
+            mem[8] = 11\n\
+            mem[7] = 101\n\
+            mem[8] = 0";
+
+        let expected_sum = 165;
+
+        let mut compy = Comporter::new();
+        compy.exec(program)?;
 
         Ok(assert_eq!(compy.sum_of_memory(), expected_sum))
     }

@@ -13,11 +13,6 @@ use std::{
 };
 use value_decoder::{MaskedDecoder, ValueDecoder};
 
-const MASK_LEN: usize = 36;
-const ZERO_BIT: u8 = '0' as u8;
-const ONE_BIT: u8 = '1' as u8;
-const ANY_BIT: u8 = 'X' as u8;
-
 pub struct Comporter {
     mask: Mask,
     memory: HashMap<usize, u64>,

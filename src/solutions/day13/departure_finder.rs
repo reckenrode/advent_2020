@@ -1,64 +1,21 @@
-use std::{cell::RefCell, iter::{Iterator, Peekable, from_fn}};
-use is_sorted::IsSorted;
-
-fn multiples_sequence(n: u64) -> RefCell<Peekable<impl Iterator<Item = u64>>> {
-    let mut m = n;
-    RefCell::new(from_fn(move || {
-        let result = Some(m);
-        m += n;
-        result
-    }).peekable())
-}
+use num::Integer;
+use std::iter::Iterator;
 
 pub fn earliest_departure(buses: &[u64], offsets: &[usize]) -> Option<u64> {
-    fn current_values<'a>(
-        xs: &'a [RefCell<Peekable<impl Iterator<Item = u64>>>]
-    ) -> impl Iterator<Item = u64> + 'a {
-        xs.iter()
-            .map(|cell| {
-                let mut it = cell.borrow_mut();
-                *it.peek().expect("contains a value")
-            })
-    }
-    fn is_departure_time(xs: impl Iterator<Item = u64>, offsets: &[usize]) -> bool {
-        let mut xs = xs.peekable();
-        if let Some(first) = xs.peek() {
-            let first = *first;
-            xs.map(|x| x.wrapping_sub(first))
-                .zip(offsets.iter())
-                .fold(true, |acc, (lhs, rhs)| {
-                    acc && lhs == *rhs as u64
-                })
-        } else {
-            false
-        }
-    };
     if buses.len() == offsets.len() && buses.len() > 0 {
-        let multiples: Vec<RefCell<Peekable<_>>> = buses.iter()
-            .map(|x| multiples_sequence(*x))
-            .collect();
-        while !is_departure_time(current_values(multiples.as_slice()), offsets) {
-            if !IsSorted::is_sorted(&mut current_values(multiples.as_slice())) {
-                let mut last = &multiples[0];
-                for cell in multiples[1..].iter() {
-                    let mut stream = cell.borrow_mut();
-                    while stream.peek() < last.borrow_mut().peek() {
-                        stream.next();
-                    }
-                    last = cell;
-                }
-            } else {
-                multiples[0].borrow_mut().next();
+        let mut result = buses[0];
+        let mut increment = buses[0];
+        for (bus, offset) in buses.iter().skip(1).zip(offsets.iter().skip(1)) {
+            while (result + *offset as u64) % bus != 0 {
+                result += increment;
             }
+            increment = increment.lcm(bus);
         }
-        let result: Vec<u64> = current_values(multiples.as_slice())
-            .collect();
-        Some(result[0])
+        Some(result)
     } else {
         None
     }
 }
-
 #[cfg(test)]
 mod tests {
     use super::*;

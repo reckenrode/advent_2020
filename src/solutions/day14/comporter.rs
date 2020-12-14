@@ -53,8 +53,7 @@ impl Comporter {
     }
 
     pub fn set_memory(&mut self, index: usize, value: u64) {
-        let mask = &self.mask.to_string();
-        let memory_value = self.value_decoder.decode(value, mask);
+        let memory_value = self.value_decoder.decode(value, &self.mask);
         for address in self.address_decoder.decode(index, &self.mask) {
             *self.memory.entry(address).or_insert(memory_value) = memory_value;
         }

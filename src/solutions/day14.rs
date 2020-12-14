@@ -13,7 +13,10 @@ impl Solution {
         let program = std::fs::File::open(&self.input)?;
         let mut compy = comporter::Comporter::new();
         compy.exec(program)?;
-        println!("The sum of all values in memory is {}.", compy.sum_of_memory());
+        println!(
+            "The sum of all values in memory is {}.",
+            compy.sum_of_memory()
+        );
         Ok(())
     }
 }

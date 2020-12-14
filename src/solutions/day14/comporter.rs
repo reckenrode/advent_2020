@@ -95,7 +95,7 @@ mod tests {
         compy.set_mask(mask)?;
         compy.set_memory(0, value);
 
-        Ok(assert_eq!(compy.memory(0), expected_result))
+        Ok(assert_eq!(compy.sum_of_memory(), expected_result))
     }
 
     #[test]
@@ -114,7 +114,7 @@ mod tests {
             compy.set_memory(8, *value);
         }
 
-        Ok(assert_eq!(compy.memory(8), expected_result))
+        Ok(assert_eq!(compy.sum_of_memory(), expected_result))
     }
 
     #[test]

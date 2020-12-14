@@ -3,8 +3,7 @@ use nom::{
     bytes::complete::{tag, take_while1},
     character::complete::{char, digit1, space0},
     combinator::{eof, map_res},
-    sequence::terminated,
-    sequence::{delimited, pair, preceded},
+    sequence::{delimited, pair, preceded, terminated},
     Finish,
 };
 use std::{collections::HashMap, error::Error};

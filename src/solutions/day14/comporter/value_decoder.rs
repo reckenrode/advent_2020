@@ -1,3 +1,3 @@
 pub trait ValueDecoder {
-    fn decode(value: u64, mask: &str) -> u64;
+    fn decode(&self, value: u64, mask: &str) -> u64;
 }

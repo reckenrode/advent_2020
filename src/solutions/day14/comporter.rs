@@ -9,6 +9,7 @@ use std::{
     collections::HashMap,
     io::{BufRead, BufReader, Read},
 };
+use value_decoder::{MaskedDecoder, ValueDecoder};
 
 const MASK_LEN: usize = 36;
 const ZERO_BIT: u8 = '0' as u8;
@@ -16,19 +17,19 @@ const ONE_BIT: u8 = '1' as u8;
 const ANY_BIT: u8 = 'X' as u8;
 
 pub struct Comporter {
-    and_mask: u64,
-    or_mask: u64,
+    mask: String,
     memory: HashMap<usize, u64>,
     address_decoder: Box<dyn AddressDecoder>,
+    value_decoder: Box<dyn ValueDecoder>,
 }
 
 impl Comporter {
     pub fn new() -> Comporter {
         Comporter {
-            and_mask: u64::MAX,
-            or_mask: 0,
+            mask: "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX".to_string(),
             memory: HashMap::new(),
             address_decoder: Box::new(NullDecoder::new()),
+            value_decoder: Box::new(MaskedDecoder::new()),
         }
     }
 
@@ -45,24 +46,14 @@ impl Comporter {
     }
 
     pub fn set_mask(&mut self, mask: impl AsRef<str>) -> Result<()> {
-        let mask = mask.as_ref();
-        if mask.len() != MASK_LEN {
-            Err(anyhow!(
-                "mask length is invalid ({} not {})",
-                mask.len(),
-                MASK_LEN,
-            ))
-        } else {
-            let (and_mask, or_mask) = Self::parse_masks(mask)?;
-            self.and_mask = and_mask;
-            self.or_mask = or_mask;
-            Ok(())
-        }
+        self.mask = mask.as_ref().to_string();
+        Ok(())
     }
 
     pub fn set_memory(&mut self, index: usize, value: u64) {
-        let memory_value = value & self.and_mask | self.or_mask;
-        for address in self.address_decoder.decode(index, "") {
+        let mask = &self.mask;
+        let memory_value = self.value_decoder.decode(value, mask);
+        for address in self.address_decoder.decode(index, mask) {
             *self.memory.entry(address).or_insert(memory_value) = memory_value;
         }
     }

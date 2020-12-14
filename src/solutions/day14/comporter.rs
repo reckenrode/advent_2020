@@ -1,4 +1,5 @@
 mod address_decoder;
+mod mask;
 mod program_statement;
 mod value_decoder;
 

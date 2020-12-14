@@ -55,10 +55,6 @@ impl Comporter {
         }
     }
 
-    pub fn memory(&self, index: usize) -> u64 {
-        *self.memory.get(&index).unwrap_or(&0)
-    }
-
     pub fn set_memory(&mut self, index: usize, value: u64) {
         let memory_value = value & self.and_mask | self.or_mask;
         *self.memory.entry(index).or_insert(memory_value) = memory_value;

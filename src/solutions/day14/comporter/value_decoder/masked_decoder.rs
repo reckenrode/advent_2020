@@ -2,7 +2,6 @@ use super::{
     super::mask::{Bit, Mask},
     ValueDecoder,
 };
-use anyhow::Result;
 use std::iter::Iterator;
 
 pub struct MaskedDecoder {}
@@ -32,6 +31,7 @@ impl ValueDecoder for MaskedDecoder {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use anyhow::Result;
 
     #[test]
     fn applies_the_mask_to_the_value() -> Result<()> {

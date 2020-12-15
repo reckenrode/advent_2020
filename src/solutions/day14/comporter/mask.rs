@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use std::convert::{TryFrom, TryInto};
 
 const MASK_LEN: usize = 36;
 const ZERO_BIT: u8 = '0' as u8;
@@ -67,6 +68,26 @@ impl std::fmt::Display for Mask {
             write!(f, "{}", raw_char)?;
         }
         Ok(())
+    }
+}
+
+impl TryFrom<Vec<Bit>> for Mask {
+    type Error = anyhow::Error;
+
+    fn try_from(value: Vec<Bit>) -> Result<Self, Self::Error> {
+        if value.len() != MASK_LEN {
+            Err(anyhow!(
+                "invalid mask length (got {} instead of {})",
+                value.len(),
+                MASK_LEN,
+            ))
+        } else {
+            let mut mask = Mask::new();
+            for (idx, bit) in value.iter().enumerate() {
+                mask.raw_mask[idx] = *bit;
+            }
+            Ok(mask)
+        }
     }
 }
 
@@ -156,5 +177,140 @@ mod tests {
         let mask = Mask::parse("XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X")?;
         let result: Vec<Bit> = mask.iter().copied().collect();
         Ok(assert_eq!(result, expected_result))
+    }
+
+    #[test]
+    fn converts_from_a_vec_of_bits() -> Result<()> {
+        let expected_result = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X";
+        let value = vec![
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::one,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::zero,
+            Bit::any,
+        ];
+        let result: Mask = value.try_into()?;
+        Ok(assert_eq!(result.to_string(), expected_result))
+    }
+
+    #[test]
+    fn rejects_long_bit_vecs() {
+        let expected_result = anyhow!("invalid mask length (got 37 instead of 36)");
+        let value = vec![
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::one,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::zero,
+            Bit::any,
+        ];
+        let result = Mask::try_from(value).unwrap_err();
+        assert_eq!(result.to_string(), expected_result.to_string())
+    }
+
+    #[test]
+    fn rejects_short_bit_vecs() {
+        let expected_result = anyhow!("invalid mask length (got 35 instead of 36)");
+        let value = vec![
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::one,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::any,
+            Bit::zero,
+            Bit::any,
+        ];
+        let result = Mask::try_from(value).unwrap_err();
+        assert_eq!(result.to_string(), expected_result.to_string())
     }
 }

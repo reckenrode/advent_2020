@@ -6,7 +6,7 @@ use clap::Clap;
 #[derive(Clap)]
 pub struct Solution {
     input: std::path::PathBuf,
-    #[clap(arg_enum, about = "Which version of the comporter to use")]
+    #[clap(arg_enum, default_value = "one", long = "--comporter-version", about = "Which version of the comporter to use")]
     comporter_version: comporter::Version,
 }
 

@@ -92,6 +92,22 @@ impl TryFrom<Vec<Bit>> for Mask {
     }
 }
 
+impl TryInto<usize> for Mask {
+    type Error = anyhow::Error;
+
+    fn try_into(self) -> Result<usize, Self::Error> {
+        let mut result = 0;
+        for bit in self.raw_mask.iter() {
+            match bit {
+                Bit::zero => result <<= 1,
+                Bit::one => result = result << 1 | 1,
+                Bit::any => Err(anyhow!("can’t convert a mask with any bits to a usize"))?,
+            }
+        }
+        Ok(result)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

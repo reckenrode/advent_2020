@@ -1,3 +1,4 @@
+mod floating_decoder;
 mod null_decoder;
 
 use super::mask::Mask;

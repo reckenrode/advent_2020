@@ -22,7 +22,7 @@ impl Solution {
         let target_number = sequence
             .nth(self.nth - 1)
             .ok_or(anyhow!("something has gone terribly wrong. :("))?;
-        println!("The 2020th number in the game is {}.", target_number);
+        println!("#{} in the game is {}.", self.nth, target_number);
         Ok(())
     }
 }

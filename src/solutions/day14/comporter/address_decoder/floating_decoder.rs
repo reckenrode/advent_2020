@@ -4,7 +4,7 @@ use anyhow::Result;
 use bitvec::prelude::*;
 use std::convert::{TryFrom, TryInto};
 
-struct FloatingDecoder {}
+pub struct FloatingDecoder {}
 
 impl FloatingDecoder {
     pub fn new() -> FloatingDecoder {

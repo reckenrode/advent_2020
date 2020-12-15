@@ -13,6 +13,7 @@ pub enum Solution {
     Day12(day12::Solution),
     Day13(day13::Solution),
     Day14(day14::Solution),
+    Day15(day15::Solution),
 }
 
 impl Solution {
@@ -22,6 +23,7 @@ impl Solution {
             Solution::Day12(solution) => solution.run(),
             Solution::Day13(solution) => solution.run(),
             Solution::Day14(solution) => solution.run(),
+            Solution::Day15(solution) => solution.run(),
         }
     }
 }

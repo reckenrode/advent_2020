@@ -2,7 +2,7 @@
 edition = "2018"
 
 name = "advent_2020"
-version = "2020.12.14"
+version = "2020.12.15"
 
 authors = ["Randy Eckenrode <randy@largeandhighquality.com>"]
 description = "Advent of Code 2020 solutions written in Rust"

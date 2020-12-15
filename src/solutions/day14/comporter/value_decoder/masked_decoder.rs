@@ -15,9 +15,9 @@ impl MaskedDecoder {
     fn parse_masks(mask: &Mask) -> (u64, u64) {
         mask.iter()
             .fold((0, 0), |(and_mask, or_mask), bit| match bit {
-                Bit::any => (and_mask << 1 | 1, or_mask << 1),
-                Bit::one => (and_mask << 1 | 1, or_mask << 1 | 1),
-                Bit::zero => (and_mask << 1, or_mask << 1),
+                Bit::Any => (and_mask << 1 | 1, or_mask << 1),
+                Bit::One => (and_mask << 1 | 1, or_mask << 1 | 1),
+                Bit::Zero => (and_mask << 1, or_mask << 1),
             })
     }
 }

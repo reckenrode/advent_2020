@@ -20,11 +20,11 @@ impl AddressDecoder for FloatingDecoder {
             .skip(address_bits.len() - MASK_LEN)
             .zip(mask.iter())
             .map(|(addr_bit, mask_bit)| match mask_bit {
-                Bit::zero => {
+                Bit::Zero => {
                     if *addr_bit {
-                        Bit::one
+                        Bit::One
                     } else {
-                        Bit::zero
+                        Bit::Zero
                     }
                 }
                 x => *x,
@@ -42,11 +42,11 @@ fn masks_for_floating_bits(mask: &Mask) -> Vec<Mask> {
     fn masks_for_floating_bits_rec(bits: &[Bit], offset: usize, result: &mut Vec<Vec<Bit>>) {
         if offset == bits.len() {
             result.push(bits.to_vec())
-        } else if bits[offset] == Bit::any {
+        } else if bits[offset] == Bit::Any {
             let mut one_mask = bits.to_vec();
-            one_mask[offset] = Bit::one;
+            one_mask[offset] = Bit::One;
             let mut zero_mask = bits.to_vec();
-            zero_mask[offset] = Bit::zero;
+            zero_mask[offset] = Bit::Zero;
             masks_for_floating_bits_rec(one_mask.as_slice(), offset + 1, result);
             masks_for_floating_bits_rec(zero_mask.as_slice(), offset + 1, result);
         } else {

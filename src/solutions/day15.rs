@@ -14,7 +14,8 @@ pub struct Solution {
 impl Solution {
     pub fn run(self) -> Result<(), Box<dyn Error>> {
         let input: Result<Vec<i32>, _> = std::fs::read_to_string(self.input)?
-            .strip_suffix("\n").ok_or(anyhow!("invalid input format"))?
+            .strip_suffix("\n")
+            .ok_or(anyhow!("invalid input format"))?
             .split(",")
             .map(|x| x.parse())
             .collect();

@@ -5,6 +5,7 @@ name = "advent_2020"
 version = "2020.12.14"
 dependencies = [
  "anyhow",
+ "bitvec",
  "clap",
  "nalgebra",
  "nom",

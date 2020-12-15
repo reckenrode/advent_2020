@@ -1,6 +1,6 @@
 use std::{collections::HashMap, iter::from_fn};
 
-fn counting_game_iter(input: &[i32]) -> impl Iterator<Item = i32> {
+pub fn counting_game_iter(input: &[i32]) -> impl Iterator<Item = i32> {
     let mut initial_numbers = input.to_vec();
     initial_numbers.reverse();
 

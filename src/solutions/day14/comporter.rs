@@ -2,8 +2,11 @@ mod address_decoder;
 mod mask;
 mod program_statement;
 mod value_decoder;
+mod version;
 
-use address_decoder::{AddressDecoder, NullDecoder};
+pub use version::Version;
+
+use address_decoder::AddressDecoder;
 use anyhow::Result;
 use mask::Mask;
 use program_statement::ProgramStatement;
@@ -11,7 +14,7 @@ use std::{
     collections::HashMap,
     io::{BufRead, BufReader, Read},
 };
-use value_decoder::{MaskedDecoder, ValueDecoder};
+use value_decoder::ValueDecoder;
 
 pub struct Comporter {
     mask: Mask,
@@ -21,12 +24,13 @@ pub struct Comporter {
 }
 
 impl Comporter {
-    pub fn new() -> Comporter {
+    pub fn new(version: Version) -> Comporter {
+        let (address_decoder, value_decoder) = version.decoders();
         Comporter {
             mask: Mask::new(),
             memory: HashMap::new(),
-            address_decoder: Box::new(NullDecoder::new()),
-            value_decoder: Box::new(MaskedDecoder::new()),
+            address_decoder: address_decoder,
+            value_decoder: value_decoder,
         }
     }
 
@@ -71,7 +75,7 @@ mod tests {
         let mask = "XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X";
         let value = 0b000000000000000000000000000000001011;
 
-        let mut compy = Comporter::new();
+        let mut compy = Comporter::new(Version::One);
         compy.set_mask(mask)?;
         compy.set_memory(0, value);
 
@@ -88,7 +92,7 @@ mod tests {
             0b000000000000000000000000000000000000,
         ];
 
-        let mut compy = Comporter::new();
+        let mut compy = Comporter::new(Version::One);
         compy.set_mask(mask)?;
         for value in values.iter() {
             compy.set_memory(8, *value);
@@ -108,7 +112,7 @@ mod tests {
             (8, 0),
         ];
 
-        let mut compy = Comporter::new();
+        let mut compy = Comporter::new(Version::One);
         compy.set_mask(mask)?;
 
         for (address, value) in program.iter() {
@@ -128,7 +132,7 @@ mod tests {
 
         let expected_sum = 165;
 
-        let mut compy = Comporter::new();
+        let mut compy = Comporter::new(Version::One);
         compy.exec(Cursor::new(program))?;
 
         Ok(assert_eq!(compy.sum_of_memory(), expected_sum))
@@ -145,7 +149,7 @@ mod tests {
 
         let expected_sum = 166;
 
-        let mut compy = Comporter::new();
+        let mut compy = Comporter::new(Version::One);
         compy.exec(Cursor::new(program))?;
 
         Ok(assert_eq!(compy.sum_of_memory(), expected_sum))

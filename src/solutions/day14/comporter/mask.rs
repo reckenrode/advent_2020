@@ -1,7 +1,8 @@
 use anyhow::{anyhow, Result};
 use std::convert::{TryFrom, TryInto};
 
-const MASK_LEN: usize = 36;
+pub const MASK_LEN: usize = 36;
+
 const ZERO_BIT: u8 = '0' as u8;
 const ONE_BIT: u8 = '1' as u8;
 const ANY_BIT: u8 = 'X' as u8;

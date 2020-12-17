@@ -1,8 +1,17 @@
+with import <nixpkgs> {
+  overlays = [
+    (import (builtins.fetchTarball https://github.com/mozilla/nixpkgs-mozilla/archive/master.tar.gz))
+  ];
+};
 let
-  pkgs = import <nixpkgs> {};
+  rust_stable = (latest.rustChannels.stable.rust.override {
+    extensions = [ "rust-src" ];
+  });
 in
-pkgs.mkShell {
-  buildInputs = with pkgs; [
+stdenv.mkDerivation {
+  name = "rust-env";
+  nativeBuildInputs = with pkgs; [
+    rust_stable
     dotnet-sdk_5
   ];
 }
